@@ -6,6 +6,7 @@ TagManager:
   tags:
   - groundCheck
   - Enemy
+  - PlayerHit
   layers:
   - Default
   - TransparentFX
@@ -13,8 +14,8 @@ TagManager:
   - Character
   - Water
   - UI
-  - 
-  - 
+  - EnemyHit
+  - Enemy
   - 
   - 
   - 
