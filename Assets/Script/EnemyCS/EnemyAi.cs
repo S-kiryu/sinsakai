@@ -137,7 +137,7 @@ public class EnemyAi : MonoBehaviour
     //ˆÚ“®ŠÖ˜A
     private void Idle() 
     {
-
+        
     }
 
     private void Walk()
