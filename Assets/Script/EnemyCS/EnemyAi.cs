@@ -9,6 +9,7 @@ public class EnemyAi : MonoBehaviour
 
     //＝＝＝敵の情報＝＝＝
     [Tooltip("プレイヤーを検知する距離")]
+    [Header("プレイヤー感知距離")]
     [SerializeField]
     private float _detectionRange = 5f;
     
@@ -16,13 +17,19 @@ public class EnemyAi : MonoBehaviour
     //＝＝＝敵のステータス＝＝＝
     [SerializeField]
     private float _enemyHp = 1528.0f;
-    [SerializeField]
+
     [Tooltip("敵が回復を行う値")]
+    [Header("敵が回復を行う値")]
+    [SerializeField]
     private float _enemyHealValue = 509.0f;
+
+    [Header("回復できる数")]
     [SerializeField]
     private int _potion = 1;
+
+    [Tooltip("回復値")]
+    [Header("回復値")]
     [SerializeField]
-    [Tooltip("ポーションを使ったときに回復する値")]
     private float _potionHeal = 1000.0f;
     private float _moveSpeed = 2f;
 
@@ -135,6 +142,7 @@ public class EnemyAi : MonoBehaviour
     }
 
     //＝＝＝移動関連＝＝＝
+    #region//移動関連
     private void Idle() 
     {
         
@@ -158,8 +166,10 @@ public class EnemyAi : MonoBehaviour
     {
 
     }
+    #endregion
 
     //＝＝＝体力関連＝＝＝
+    #region//体力関連
     public float GetEnemyHp()
     {
         return _enemyHp;
@@ -188,9 +198,10 @@ public class EnemyAi : MonoBehaviour
         Debug.Log(_daijoubu);
         Destroy(gameObject);
     }
+    #endregion
 
     //＝＝＝攻撃関連＝＝＝
-
+    #region//攻撃関連
     private void AtaackCollTime() 
     {
         _enemyAttackCoolTime += Time.deltaTime;
@@ -210,6 +221,5 @@ public class EnemyAi : MonoBehaviour
     {
 
     }
-
-
+    #endregion
 }

@@ -151,13 +151,13 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: f9390ed13f61e0640a49ae7ebe29ce74, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  _playerHp: 100
   _moveSpeed: 5
   _jumpForce: 7
   _rollSpeed: 10
   _rollDuration: 0.4
   _rollKey: 304
   _rollHit_col: {fileID: 1774153430}
-  _playerHp: 0
   _punchAttackKey: 122
   _punchDmg: 1
   _projectileKey: 120
@@ -882,7 +882,7 @@ Transform:
   m_GameObject: {fileID: 1446838075}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 9.51, y: -0.03, z: 0}
+  m_LocalPosition: {x: 8.16, y: 0.21, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []

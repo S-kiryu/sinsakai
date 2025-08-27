@@ -5,10 +5,15 @@ public class PlayerMove : MonoBehaviour
 {
     private string _sin = "しんでしまうとはなさけない！";
 
+    //＝＝＝体力関連＝＝＝
+    [SerializeField]
+    private float _playerHp = 100;
+
     //＝＝＝移動系＝＝＝
     [Tooltip("移動スピード")]
     [SerializeField]
     private float _moveSpeed = 5f;
+
     [Tooltip("ジャンプ力")]
     [SerializeField]
     private float _jumpForce = 7f;
@@ -17,28 +22,43 @@ public class PlayerMove : MonoBehaviour
     [Tooltip("回避スピード")]
     [SerializeField]
     private float _rollSpeed = 10f;
-    [Tooltip("回避の持続時間")]
+
+    [Tooltip("回避時間")]
+    [Header("回避時間")]
     [SerializeField]
     private float _rollDuration = 0.4f;
+
+    private float _rollTimer = 0f;
+
     [Tooltip("回避キー")]
     [SerializeField]
     private KeyCode _rollKey = KeyCode.LeftShift;
+
     [SerializeField]
     private Collider2D _rollHit_col;
 
-    //＝＝＝体力関連＝＝＝
-    [SerializeField]
-    private float _playerHp = 100;
+    private Vector2 _rollDirection;
+    private bool _isRolling = false;
+    private bool _isMovementLocked = false;
+    private bool _isFacingRight = true;
+
 
     //＝＝＝攻撃系＝＝＝
     [Tooltip("通常攻撃キー")]
     [SerializeField]
     private KeyCode _punchAttackKey = KeyCode.Z;
+
+    [Tooltip("通常攻撃")]
+    [Header("通常攻撃")]
     [SerializeField]
     private float _punchDmg = 1.0f;
+
     [Tooltip("強攻撃キー")]
     [SerializeField]
     private KeyCode _projectileKey = KeyCode.X;
+
+    [Tooltip("遠距離攻撃")]
+    [Header("遠距離攻撃")]
     [SerializeField]
     private float _projectileDmg = 2.0f;
     private float _attackDamage;
@@ -51,11 +71,6 @@ public class PlayerMove : MonoBehaviour
     private Collider2D _punchAttackCollider;
     [SerializeField]
     private Collider2D _projectileAttackCollider;
-    private Vector2 _rollDirection;
-    private bool _isRolling = false;
-    private bool _isMovementLocked = false;
-    private bool _isFacingRight = true;
-    private float _rollTimer = 0f;
 
     // ＝＝＝地面判定＝＝＝
     private bool _isGrounded;
@@ -80,6 +95,7 @@ public class PlayerMove : MonoBehaviour
         HandleAttack();
     }
     //＝＝＝HPに関する動き＝＝＝
+    #region
     public float GetEnemyHp()
     {
         return _playerHp;
@@ -100,8 +116,10 @@ public class PlayerMove : MonoBehaviour
         Debug.Log(_sin);
         Destroy(gameObject);
     }
+    #endregion
 
     //＝＝＝移動に関する動き＝＝＝
+    #region
     private void HandleMovement()
     {
         if (_isMovementLocked || _isRolling) return;
@@ -116,8 +134,10 @@ public class PlayerMove : MonoBehaviour
 
         if (Input.GetKeyDown(_rollKey) && !_isRolling) StartRoll();
     }
+    #endregion
 
     //＝＝＝回避に関する動き＝＝＝
+    #region
     private void HandleRoll()
     {
         if (!_isRolling) return;
@@ -157,9 +177,10 @@ public class PlayerMove : MonoBehaviour
         _isFacingRight = faceRight;
         transform.localScale = new Vector3(faceRight ? 1 : -1, 1, 1);
     }
-
+    #endregion
 
     //＝＝＝ジャンプに関する動き＝＝＝
+    #region
     private void HandleJump()
     {
         if (Input.GetKeyDown(KeyCode.Space) && _isGrounded && !_isRolling)
@@ -168,8 +189,10 @@ public class PlayerMove : MonoBehaviour
             _isGrounded = false;
         }
     }
+    #endregion
 
     //＝＝＝攻撃に関する動き＝＝＝
+    #region
     private void HandleAttack()
     {
         if (Input.GetKeyDown(_punchAttackKey))
@@ -230,9 +253,10 @@ public class PlayerMove : MonoBehaviour
             }
         }
     }
-
+    #endregion
 
     // ＝＝＝地面の当たり判定＝＝＝
+    #region
     private void OnCollisionEnter2D(Collision2D collision)
     {
         if (collision.gameObject.CompareTag("groundCheck"))
@@ -248,5 +272,5 @@ public class PlayerMove : MonoBehaviour
             _isGrounded = false;
         }
     }
-
+    #endregion
 }
