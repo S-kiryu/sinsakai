@@ -1,3 +1,4 @@
+using System.Collections;
 using UnityEngine;
 using UnityEngine.Android;
 using UnityEngine.InputSystem;
@@ -24,11 +25,17 @@ public class EnemyAi : MonoBehaviour
     [Tooltip("ポーションを使ったときに回復する値")]
     private float potionHeal = 1000.0f;
     private float moveSpeed = 2f;
+    [SerializeField]
+    private float HellTime = 1f;
 
 //バックの動作
     [Tooltip("後退スピード")]
     [SerializeField]
     private float backSpeed = 5f;
+
+    //ノックバック
+    [SerializeField]
+    private float knockBack;
 
     private Transform player_Pos;
     private EnemyState _enemyState;
@@ -36,13 +43,19 @@ public class EnemyAi : MonoBehaviour
 
     public enum EnemyState
     {
+        //移動
         Idle,
         Walk,
         Dash,
         Back,
+        //アクション
         Heal,
+        //攻撃
         Attack,
         HardAttack,
+        Grad,
+        _null,
+
 
     }
 
@@ -91,6 +104,7 @@ public class EnemyAi : MonoBehaviour
                 isMovingBack = false;
                 if (isMovingBack == true) 
                 {
+                    StartCoroutine(HeelCoolTime());
                     Debug.Log("回復してる！！！");
                     Heal(); 
                 }
@@ -159,6 +173,15 @@ public class EnemyAi : MonoBehaviour
         enemyHp += potionHeal;
         _enemyState = EnemyState.Walk;
         Debug.Log(enemyHp);
+    }
+    private IEnumerator HeelCoolTime()
+    {
+        Debug.Log("回復のクールタイムを開始");
+
+        // 3秒待機
+        yield return new WaitForSeconds(HellTime);
+
+        Debug.Log("回復終わり！");
     }
 
     private void Die() 
