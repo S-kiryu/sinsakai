@@ -17,6 +17,7 @@ public class EnemyAi : MonoBehaviour
     //＝＝＝敵のステータス＝＝＝
     [SerializeField]
     private float _enemyHp = 1528.0f;
+    private float _enemyMaxHp;
 
     [Tooltip("敵が回復を行う値")]
     [Header("敵が回復を行う値")]
@@ -42,7 +43,7 @@ public class EnemyAi : MonoBehaviour
     private Transform _player_Pos;
     private Rigidbody2D _rb;
     private EnemyMoveState _enemyMoveState;
-    private EnemyAttackStare _enemyAttackState;
+    private EnemyAttackState _enemyAttackState;
     private bool _enemyMoveStateEnter = true;
 
 
@@ -70,25 +71,27 @@ public class EnemyAi : MonoBehaviour
     private bool _enemyAttackStateEnter = true;
 
 
-    public enum EnemyAttackStare
+    public enum EnemyAttackState
     {
         NotAttack,
         Attack,
         HardAttack,
     }
 
-    void ChangeAttackState(EnemyAttackStare newAttackState) 
+    void ChangeAttackState(EnemyAttackState newAttackState) 
     {
         _enemyAttackState = newAttackState;
+        _enemyAttackStateEnter = true;
 
     }
 
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     void Start()
     {
+        _enemyMaxHp = _enemyHp;
         _rb = GetComponent<Rigidbody2D>();
         _enemyMoveState = EnemyMoveState.Idle;
-        _enemyAttackState = EnemyAttackStare.NotAttack;
+        _enemyAttackState = EnemyAttackState.NotAttack;
         _player_Pos = GameObject.FindGameObjectWithTag("Player").transform;
     }
 
@@ -164,7 +167,8 @@ public class EnemyAi : MonoBehaviour
 
     private void EnemyBack()
     {
-
+        Vector2 direction = (transform.position - _player_Pos.position).normalized;
+        _rb.linearVelocity = new Vector2(direction.x * _backSpeed, _rb.linearVelocity.y);
     }
     #endregion
 
@@ -189,6 +193,10 @@ public class EnemyAi : MonoBehaviour
     {
         //ヒール
         _enemyHp += _potionHeal;
+        if (_enemyHp > _enemyHealValue) 
+        {
+            _enemyHp = _enemyHealValue;
+        }
         ChangeMoveState(EnemyMoveState.Walk);
         Debug.Log(_enemyHp);
     }
