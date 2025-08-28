@@ -45,7 +45,7 @@ public class EnemyAi : MonoBehaviour
     private Transform _player_Pos;
     private Rigidbody2D _rb;
     private EnemyMoveState _enemyMoveState;
-    private EnemyAttackState _enemyAttackState;
+    private EnemyAttackState _enemyAtkState;
     private bool _enemyMoveStateEnter = true;
 
 
@@ -66,18 +66,19 @@ public class EnemyAi : MonoBehaviour
 
     //ÅÅÅÅÅÅìGÇÃçUåÇä÷òAÅÅÅÅÅÅ
     [SerializeField]
-    private float _enemyNormalAttack_Dmg = 10;
+    private float _enemyNormalAtk_Dmg = 10;
     [SerializeField]
-    private float _enemyNormalAttack_Time = 10f;
+    private float _enemyNormalAtk_Time = 10f;
     private float _enemyFinalDmg;
     [SerializeField]
-    private Collider2D _NormalAttack_col;
-    private float _enemyAttackCoolTime = 0; //0Å`1Ç≈îªíf
-    private bool _enemyAttackStateEnter = true;
+    private Collider2D _NormalAtk_col;
+    private float _enemyAtkCoolTime = 0; //0Å`1Ç≈îªíf
+    private bool _enemyAtkStateEnter = true;
 
 
     public enum EnemyAttackState
     {
+        AttackIdle,
         NotAttack,
         Attack,
         HardAttack,
@@ -85,8 +86,8 @@ public class EnemyAi : MonoBehaviour
 
     void ChangeAttackState(EnemyAttackState newAttackState) 
     {
-        _enemyAttackState = newAttackState;
-        _enemyAttackStateEnter = true;
+        _enemyAtkState = newAttackState;
+        _enemyAtkStateEnter = true;
 
     }
 
@@ -97,7 +98,7 @@ public class EnemyAi : MonoBehaviour
         _originalScale = transform.localScale;
         _rb = GetComponent<Rigidbody2D>();
         _enemyMoveState = EnemyMoveState.Idle;
-        _enemyAttackState = EnemyAttackState.NotAttack;
+        _enemyAtkState = EnemyAttackState.NotAttack;
         _player_Pos = GameObject.FindGameObjectWithTag("Player").transform;
     }
 
@@ -110,7 +111,7 @@ public class EnemyAi : MonoBehaviour
         {
             case EnemyMoveState.Idle:
                 Idle();
-                if (distance < _detectionRange && _enemyAttackState == EnemyAttackState.NotAttack)
+                if (distance < _detectionRange && _enemyAtkState == EnemyAttackState.NotAttack)
                 {
                     Debug.Log("ÉvÉåÉCÉÑÅ[Çî≠å©ÅI");
                     ChangeMoveState(EnemyMoveState.Walk);
@@ -151,15 +152,24 @@ public class EnemyAi : MonoBehaviour
         //çUåÇÇÃÉNÅ[ÉãÉ^ÉCÉÄÇÃåvéZ
         //óDêÊìxÇÃê›íË
         #region
-        CoolTime(_enemyAttackState,_enemyAttackCoolTime,_enemyNormalAttack_Time);
+        CoolTime(_enemyAtkState,_enemyAtkCoolTime,_enemyNormalAtk_Time);
         #endregion
-        switch (_enemyAttackState) 
+        switch (_enemyAtkState) 
         {
+            case EnemyAttackState.AttackIdle:
+                break;
+
             case EnemyAttackState.NotAttack:
-                if (_enemyAttackStateEnter) 
+                if (_enemyAtkStateEnter) 
                 {
-                    _enemyAttackStateEnter = false;
+                    _enemyAtkStateEnter = false;
                     Debug.Log("çUåÇÇèÄîıíÜ");
+                }
+
+                if (_enemyAtkCoolTime >= 1) 
+                {
+                    ChangeAttackState(EnemyAttackState.Attack);
+                    _enemyAtkCoolTime = 0;
                 }
 
                 break;
@@ -256,7 +266,7 @@ public class EnemyAi : MonoBehaviour
     /// <param name="attackCollTime">ë“Ç¬éûä‘Çì¸óÕ(float)</param>
     private void CoolTime(EnemyAttackState State ,float attackJudge,float attackCollTime) 
     {
-        if (_enemyAttackState != State)
+        if (_enemyAtkState != State)
         {
             attackJudge = Time.deltaTime / attackCollTime;
         }
