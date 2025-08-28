@@ -1,3 +1,4 @@
+using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.Android;
 using UnityEngine.InputSystem;
@@ -99,13 +100,12 @@ public class EnemyAi : MonoBehaviour
     void Update()
     {
         float distance = Vector2.Distance(transform.position, _player_Pos.position);
-        AtaackCollTime();
 
         switch (_enemyMoveState)
         {
             case EnemyMoveState.Idle:
                 Idle();
-                if (distance < _detectionRange)
+                if (distance < _detectionRange && _enemyAttackState == EnemyAttackState.NotAttack)
                 {
                     Debug.Log("プレイヤーを発見！");
                     ChangeMoveState(EnemyMoveState.Walk);
@@ -142,10 +142,30 @@ public class EnemyAi : MonoBehaviour
 
                 break;
         }
+
+        switch (_enemyAttackState) 
+        {
+            case EnemyAttackState.NotAttack:
+
+
+                break;
+
+            case EnemyAttackState.Attack:
+
+                Attack();
+
+                break;
+
+            case EnemyAttackState.HardAttack:
+
+                HardAttack();
+
+                break;
+        }
     }
 
     //＝＝＝移動関連＝＝＝
-    #region//移動関連
+    #region
     private void Idle() 
     {
         
@@ -173,7 +193,7 @@ public class EnemyAi : MonoBehaviour
     #endregion
 
     //＝＝＝体力関連＝＝＝
-    #region//体力関連
+    #region
     public float GetEnemyHp()
     {
         return _enemyHp;
@@ -209,17 +229,7 @@ public class EnemyAi : MonoBehaviour
     #endregion
 
     //＝＝＝攻撃関連＝＝＝
-    #region//攻撃関連
-    private void AtaackCollTime() 
-    {
-        _enemyAttackCoolTime += Time.deltaTime;
-        if (_enemyAttackCoolTime >= _enemyNormalAttack_Time)
-        {
-            Debug.Log("十秒立った");
-            _enemyAttackCoolTime = 0;
-        }
-    }
-
+    #region
     private void Attack()
     {
 
