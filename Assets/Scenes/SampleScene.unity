@@ -160,6 +160,7 @@ MonoBehaviour:
   _rollHit_col: {fileID: 1774153430}
   _punchAttackKey: 122
   _punchDmg: 1
+  _punchCollTime: 10
   _projectileKey: 120
   _projectileDmg: 2
   _punchAttackCollider: {fileID: 78039966}
@@ -229,7 +230,7 @@ Transform:
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: -4.12, y: 0, z: 0}
-  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_LocalScale: {x: 0.7, y: 0.7, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
   - {fileID: 78039964}
@@ -883,7 +884,7 @@ Transform:
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 8.16, y: 0.21, z: 0}
-  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_LocalScale: {x: 0.7, y: 0.7, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 0}
@@ -908,6 +909,7 @@ MonoBehaviour:
   _backSpeed: 5
   _enemyNormalAttack_Dmg: 10
   _enemyNormalAttack_Time: 10
+  _NormalAttack_col: {fileID: 0}
 --- !u!1 &1774153428
 GameObject:
   m_ObjectHideFlags: 0

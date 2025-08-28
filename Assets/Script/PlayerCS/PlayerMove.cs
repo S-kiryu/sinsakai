@@ -5,9 +5,10 @@ public class PlayerMove : MonoBehaviour
 {
     private string _sin = "しんでしまうとはなさけない！";
 
-    //＝＝＝体力関連＝＝＝
+    //＝＝＝ステータス関連＝＝＝
     [SerializeField]
     private float _playerHp = 100;
+    private Vector3 _originalScale;
 
     //＝＝＝移動系＝＝＝
     [Tooltip("移動スピード")]
@@ -53,6 +54,11 @@ public class PlayerMove : MonoBehaviour
     [SerializeField]
     private float _punchDmg = 1.0f;
 
+    [Tooltip("通常攻撃クールタイム")]
+    [Header("通常攻撃クールタイム")]
+    [SerializeField]
+    private float _punchCollTime = 10f;
+
     [Tooltip("強攻撃キー")]
     [SerializeField]
     private KeyCode _projectileKey = KeyCode.X;
@@ -84,7 +90,10 @@ public class PlayerMove : MonoBehaviour
         _rb.gravityScale = 3f; // 重力を有効にする
         _rb.freezeRotation = true; // 回転しないように固定
         _punchAttackCollider.enabled = false;
-        _rollHit_col.enabled = false;
+        _rollHit_col.enabled = true;
+
+        //元のスケールを保存
+        _originalScale = transform.lossyScale;
     }
 
     void Update()
@@ -174,8 +183,11 @@ public class PlayerMove : MonoBehaviour
 
     private void Flip(bool faceRight)
     {
-        _isFacingRight = faceRight;
-        transform.localScale = new Vector3(faceRight ? 1 : -1, 1, 1);
+            _isFacingRight = faceRight;
+            transform.localScale = new Vector3(
+        _originalScale.x * (faceRight ? 1 : -1),
+        _originalScale.y,
+        _originalScale.z);
     }
     #endregion
 

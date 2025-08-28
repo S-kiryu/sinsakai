@@ -13,7 +13,8 @@ public class EnemyAi : MonoBehaviour
     [Header("プレイヤー感知距離")]
     [SerializeField]
     private float _detectionRange = 5f;
-    
+    private Vector3 _originalScale;
+
 
     //＝＝＝敵のステータス＝＝＝
     [SerializeField]
@@ -68,6 +69,9 @@ public class EnemyAi : MonoBehaviour
     private float _enemyNormalAttack_Dmg = 10;
     [SerializeField]
     private float _enemyNormalAttack_Time = 10f;
+    private float _enemyFinalDmg;
+    [SerializeField]
+    private Collider2D _NormalAttack_col;
     private float _enemyAttackCoolTime = 0; //0～1で判断
     private bool _enemyAttackStateEnter = true;
 
@@ -90,6 +94,7 @@ public class EnemyAi : MonoBehaviour
     void Start()
     {
         _enemyMaxHp = _enemyHp;
+        _originalScale = transform.localScale;
         _rb = GetComponent<Rigidbody2D>();
         _enemyMoveState = EnemyMoveState.Idle;
         _enemyAttackState = EnemyAttackState.NotAttack;
@@ -178,10 +183,14 @@ public class EnemyAi : MonoBehaviour
         // 水平方向の移動だけ
         _rb.linearVelocity = new Vector2(direction.x * _moveSpeed, _rb.linearVelocity.y);
 
-        // 左右を反転させる
+        // 左右を反転させる（スケールを維持したまま）
         if (direction.x != 0)
         {
-            transform.localScale = new Vector3(Mathf.Sign(direction.x), 1, 1);
+            transform.localScale = new Vector3(
+                _originalScale.x * Mathf.Sign(direction.x),
+                _originalScale.y,
+                _originalScale.z
+            );
         }
     }
 
@@ -240,4 +249,19 @@ public class EnemyAi : MonoBehaviour
 
     }
     #endregion
+
+    //private void OnTriggerEnter2D(Collider2D other)
+    //{
+    //    if (_NormalAttack_col.enabled) // 攻撃判定がONのときだけ
+    //    {
+    //        if (other.CompareTag("Enemy"))
+    //        {
+    //            EnemyAi enemy = other.GetComponent<EnemyAi>();
+    //            if (enemy != null)
+    //            {
+    //                enemy.TakePlayerDamage(_enemyFinalDmg); // 敵のHPを削る
+    //            }
+    //        }
+    //    }
+    //}
 }
