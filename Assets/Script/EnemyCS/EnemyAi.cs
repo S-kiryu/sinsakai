@@ -90,7 +90,7 @@ public class EnemyAi : MonoBehaviour
 
     }
 
-    // Start is called once before the first execution of Update after the MonoBehaviour is created
+
     void Start()
     {
         _enemyMaxHp = _enemyHp;
@@ -101,7 +101,7 @@ public class EnemyAi : MonoBehaviour
         _player_Pos = GameObject.FindGameObjectWithTag("Player").transform;
     }
 
-    // Update is called once per frame
+
     void Update()
     {
         float distance = Vector2.Distance(transform.position, _player_Pos.position);
@@ -148,10 +148,19 @@ public class EnemyAi : MonoBehaviour
                 break;
         }
 
+        //攻撃のクールタイムの計算
+        //優先度の設定
+        #region
+        CoolTime(_enemyAttackState,_enemyAttackCoolTime,_enemyNormalAttack_Time);
+        #endregion
         switch (_enemyAttackState) 
         {
             case EnemyAttackState.NotAttack:
-
+                if (_enemyAttackStateEnter) 
+                {
+                    _enemyAttackStateEnter = false;
+                    Debug.Log("攻撃を準備中");
+                }
 
                 break;
 
@@ -239,6 +248,19 @@ public class EnemyAi : MonoBehaviour
 
     //＝＝＝攻撃関連＝＝＝
     #region
+    /// <summary>
+    /// 攻撃のクールタイムを取得
+    /// </summary>
+    /// <param name="State">EnemyAttackStateを入力</param>
+    /// <param name="attackJudge">計算した時間を保存する引数(float)</param>
+    /// <param name="attackCollTime">待つ時間を入力(float)</param>
+    private void CoolTime(EnemyAttackState State ,float attackJudge,float attackCollTime) 
+    {
+        if (_enemyAttackState != State)
+        {
+            attackJudge = Time.deltaTime / attackCollTime;
+        }
+    }
     private void Attack()
     {
 
