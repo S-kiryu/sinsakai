@@ -1,3 +1,4 @@
+using System.Collections;
 using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.Android;
@@ -94,11 +95,12 @@ public class EnemyAi : MonoBehaviour
 
     void Start()
     {
+        _NormalAtk_col.enabled = false;
         _enemyMaxHp = _enemyHp;
         _originalScale = transform.localScale;
         _rb = GetComponent<Rigidbody2D>();
         _enemyMoveState = EnemyMoveState.Idle;
-        _enemyAtkState = EnemyAttackState.NotAttack;
+        _enemyAtkState = EnemyAttackState.AttackIdle;
         _player_Pos = GameObject.FindGameObjectWithTag("Player").transform;
     }
 
@@ -111,7 +113,7 @@ public class EnemyAi : MonoBehaviour
         {
             case EnemyMoveState.Idle:
                 Idle();
-                if (distance < _detectionRange && _enemyAtkState == EnemyAttackState.NotAttack)
+                if (distance < _detectionRange && _enemyAtkState != EnemyAttackState.Attack)
                 {
                     Debug.Log("プレイヤーを発見！");
                     ChangeMoveState(EnemyMoveState.Walk);
@@ -119,7 +121,12 @@ public class EnemyAi : MonoBehaviour
                 break;
 
             case EnemyMoveState.Walk:
-                Walk();
+                if (_enemyAtkState != EnemyAttackState.Attack)
+                {
+                    Walk();
+                }
+
+                ChangeAttackState(EnemyAttackState.NotAttack);
                 Debug.Log("歩いてる！！！");
                 
                 if (_enemyHp <= _enemyHealValue && _potion > 0) 
@@ -127,7 +134,8 @@ public class EnemyAi : MonoBehaviour
                     _potion--;
                     Debug.Log(" ポーションを消費");
                     ChangeMoveState(EnemyMoveState.Heal);
-                }                
+                }
+
                 break;
 
             case EnemyMoveState.Back:
@@ -152,7 +160,7 @@ public class EnemyAi : MonoBehaviour
         //攻撃のクールタイムの計算
         //優先度の設定
         #region
-        CoolTime(_enemyAtkState,_enemyAtkCoolTime,_enemyNormalAtk_Time);
+        CoolTime(_enemyNormalAtk_Time);
         #endregion
         switch (_enemyAtkState) 
         {
@@ -169,6 +177,7 @@ public class EnemyAi : MonoBehaviour
                 if (_enemyAtkCoolTime >= 1) 
                 {
                     ChangeAttackState(EnemyAttackState.Attack);
+                    ChangeMoveState(EnemyMoveState.Idle);
                     _enemyAtkCoolTime = 0;
                 }
 
@@ -176,7 +185,11 @@ public class EnemyAi : MonoBehaviour
 
             case EnemyAttackState.Attack:
 
-                Attack();
+                if (_enemyAtkStateEnter)
+                {
+                    _enemyAtkStateEnter = false;
+                    Attack();
+                }
 
                 break;
 
@@ -227,7 +240,7 @@ public class EnemyAi : MonoBehaviour
         return _enemyHp;
     }
 
-    public void TakePlayerDamage(float damage)
+    public void TakeEnemyDamage(float damage)
     {
         _enemyHp -= damage;
         Debug.Log("敵の残りHP: " + _enemyHp);
@@ -243,7 +256,7 @@ public class EnemyAi : MonoBehaviour
         _enemyHp += _potionHeal;
         if (_enemyHp > _enemyHealValue) 
         {
-            _enemyHp = _enemyHealValue;
+            _enemyHp = _enemyMaxHp;
         }
         ChangeMoveState(EnemyMoveState.Walk);
         Debug.Log(_enemyHp);
@@ -264,16 +277,15 @@ public class EnemyAi : MonoBehaviour
     /// <param name="State">EnemyAttackStateを入力</param>
     /// <param name="attackJudge">計算した時間を保存する引数(float)</param>
     /// <param name="attackCollTime">待つ時間を入力(float)</param>
-    private void CoolTime(EnemyAttackState State ,float attackJudge,float attackCollTime) 
+    private void CoolTime(float attackCollTime)
     {
-        if (_enemyAtkState != State)
-        {
-            attackJudge = Time.deltaTime / attackCollTime;
-        }
+        _enemyAtkCoolTime += Time.deltaTime / attackCollTime;
+        //ちゃんと動く
     }
     private void Attack()
     {
-
+        _enemyFinalDmg = _enemyNormalAtk_Dmg;
+        StartCoroutine(DoEnemyNormalAttack());
     }
 
     private void HardAttack() 
@@ -282,18 +294,33 @@ public class EnemyAi : MonoBehaviour
     }
     #endregion
 
-    //private void OnTriggerEnter2D(Collider2D other)
-    //{
-    //    if (_NormalAttack_col.enabled) // 攻撃判定がONのときだけ
-    //    {
-    //        if (other.CompareTag("Enemy"))
-    //        {
-    //            EnemyAi enemy = other.GetComponent<EnemyAi>();
-    //            if (enemy != null)
-    //            {
-    //                enemy.TakePlayerDamage(_enemyFinalDmg); // 敵のHPを削る
-    //            }
-    //        }
-    //    }
-    //}
+    private void OnTriggerEnter2D(Collider2D other)
+    {
+        Debug.Log("OnTriggerEnter2D: " + other.name);
+        if (_NormalAtk_col.enabled) // 攻撃判定がONのときだけ
+        {
+            if (other.CompareTag("Player"))
+            {
+                Player player = other.GetComponentInParent<Player>();
+                if (player != null)
+                {
+                    player.TakePlayerDamage(_enemyFinalDmg); // プレイヤーのHPを削る
+                    Debug.Log("うっひょーーーーーーーーーーーーーー");
+                    ChangeAttackState(EnemyAttackState.NotAttack);
+                }
+            }
+        }
+    }
+
+    private IEnumerator DoEnemyNormalAttack()
+    {
+        Debug.Log("攻撃のコライダーをオン");
+        _NormalAtk_col.enabled = true;
+
+        yield return new WaitForSeconds(0.3f);
+
+        _NormalAtk_col.enabled = false;
+
+        ChangeAttackState(EnemyAttackState.NotAttack);
+    }
 }

@@ -1,7 +1,7 @@
 using System.Collections;
 using UnityEngine;
 
-public class PlayerMove : MonoBehaviour
+public class Player : MonoBehaviour
 {
     private string _sin = "しんでしまうとはなさけない！";
 
@@ -34,9 +34,6 @@ public class PlayerMove : MonoBehaviour
     [Tooltip("回避キー")]
     [SerializeField]
     private KeyCode _rollKey = KeyCode.LeftShift;
-
-    [SerializeField]
-    private Collider2D _rollHit_col;
 
     private Vector2 _rollDirection;
     private bool _isRolling = false;
@@ -90,7 +87,7 @@ public class PlayerMove : MonoBehaviour
         _rb.gravityScale = 3f; // 重力を有効にする
         _rb.freezeRotation = true; // 回転しないように固定
         _punchAttackCollider.enabled = false;
-        _rollHit_col.enabled = true;
+        _projectileAttackCollider.enabled = false;
 
         //元のスケールを保存
         _originalScale = transform.lossyScale;
@@ -110,7 +107,7 @@ public class PlayerMove : MonoBehaviour
         return _playerHp;
     }
 
-    public void TakeEnemyDamage(float damage)
+    public void TakePlayerDamage(float damage)
     {
         _playerHp -= damage;
         Debug.Log("Playerの残りHP: " + _playerHp);
@@ -167,7 +164,7 @@ public class PlayerMove : MonoBehaviour
 
         _rollDirection = _isFacingRight ? Vector2.right : Vector2.left;
 
-        _rollHit_col.enabled = false; // 無敵時間の表現
+        _col.enabled = false; // 無敵時間の表現
     }
 
     private void EndRoll()
@@ -175,7 +172,7 @@ public class PlayerMove : MonoBehaviour
         _isRolling = false;
         _isMovementLocked = false;
         transform.rotation = _originalRotation;
-        _rollHit_col.enabled = true;
+        _col.enabled = true;
 
         // ロール後に速度をリセット
         _rb.linearVelocity = Vector2.zero;
@@ -260,7 +257,7 @@ public class PlayerMove : MonoBehaviour
                 EnemyAi enemy = other.GetComponent<EnemyAi>();
                 if (enemy != null)
                 {
-                    enemy.TakePlayerDamage(_attackDamage); // 敵のHPを削る
+                    enemy.TakeEnemyDamage(_attackDamage); // 敵のHPを削る
                 }
             }
         }
