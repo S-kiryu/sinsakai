@@ -1,4 +1,5 @@
-using System.Collections;
+ï»¿using System.Collections;
+using System.Collections.Generic;
 using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.Android;
@@ -7,38 +8,38 @@ using static UnityEngine.GraphicsBuffer;
 
 public class EnemyAi : MonoBehaviour
 {
-    private string  _daijoubu = "‘åä•v‚¾–â‘è‚È‚¢";
+    private string _daijoubu = "å¤§ä¸ˆå¤«ã å•é¡Œãªã„";
 
-    //“G‚Ìî•ñ
-    [Tooltip("ƒvƒŒƒCƒ„[‚ğŒŸ’m‚·‚é‹——£")]
-    [Header("ƒvƒŒƒCƒ„[Š´’m‹——£")]
+    //ï¼ï¼ï¼æ•µã®æƒ…å ±ï¼ï¼ï¼
+    [Tooltip("ãƒ—ãƒ¬ã‚¤ãƒ¤ãƒ¼ã‚’æ¤œçŸ¥ã™ã‚‹è·é›¢")]
+    [Header("ãƒ—ãƒ¬ã‚¤ãƒ¤ãƒ¼æ„ŸçŸ¥è·é›¢")]
     [SerializeField]
     private float _detectionRange = 5f;
     private Vector3 _originalScale;
 
 
-    //“G‚ÌƒXƒe[ƒ^ƒX
+    //ï¼ï¼ï¼æ•µã®ã‚¹ãƒ†ãƒ¼ã‚¿ã‚¹ï¼ï¼ï¼
     [SerializeField]
     private float _enemyHp = 1528.0f;
     private float _enemyMaxHp;
 
-    [Tooltip("“G‚ª‰ñ•œ‚ğs‚¤’l")]
-    [Header("“G‚ª‰ñ•œ‚ğs‚¤’l")]
+    [Tooltip("æ•µãŒå›å¾©ã‚’è¡Œã†å€¤")]
+    [Header("æ•µãŒå›å¾©ã‚’è¡Œã†å€¤")]
     [SerializeField]
     private float _enemyHealValue = 509.0f;
 
-    [Header("‰ñ•œ‚Å‚«‚é”")]
+    [Header("å›å¾©ã§ãã‚‹æ•°")]
     [SerializeField]
     private int _potion = 1;
 
-    [Tooltip("‰ñ•œ’l")]
-    [Header("‰ñ•œ’l")]
+    [Tooltip("å›å¾©å€¤")]
+    [Header("å›å¾©å€¤")]
     [SerializeField]
     private float _potionHeal = 1000.0f;
     private float _moveSpeed = 2f;
 
-    //ƒoƒbƒN‚Ì“®ì
-    [Tooltip("Œã‘ŞƒXƒs[ƒh")]
+    //ï¼ï¼ï¼ãƒãƒƒã‚¯ã®å‹•ä½œï¼ï¼ï¼
+    [Tooltip("å¾Œé€€ã‚¹ãƒ”ãƒ¼ãƒ‰")]
     [SerializeField]
     private float _backSpeed = 5f;
     private bool _isMovingBack = true;
@@ -49,6 +50,17 @@ public class EnemyAi : MonoBehaviour
     private EnemyAttackState _enemyAtkState;
     private bool _enemyMoveStateEnter = true;
 
+    //ï¼ï¼ï¼æ•µã®æ”»æ’ƒé–¢é€£ï¼ï¼ï¼
+    [SerializeField]
+    private float _enemyNormalAtk_Dmg = 10;
+    [SerializeField]
+    private float _enemyNormalAtk_Time = 10f;
+    [SerializeField]
+    private Collider2D _NormalAtk_col;
+
+    private float _enemyFinalDmg;
+    private float _enemyAtkCoolTime = 0; //0ï½1ã§åˆ¤æ–­
+    private bool _enemyAtkStateEnter = true;
 
     public enum EnemyMoveState
     {
@@ -59,24 +71,6 @@ public class EnemyAi : MonoBehaviour
         Heal,
     }
 
-    void ChangeMoveState(EnemyMoveState newMoveState) 
-    {
-        _enemyMoveState = newMoveState;
-        _enemyMoveStateEnter = true;
-    }
-
-    //“G‚ÌUŒ‚ŠÖ˜A
-    [SerializeField]
-    private float _enemyNormalAtk_Dmg = 10;
-    [SerializeField]
-    private float _enemyNormalAtk_Time = 10f;
-    private float _enemyFinalDmg;
-    [SerializeField]
-    private Collider2D _NormalAtk_col;
-    private float _enemyAtkCoolTime = 0; //0`1‚Å”»’f
-    private bool _enemyAtkStateEnter = true;
-
-
     public enum EnemyAttackState
     {
         AttackIdle,
@@ -85,7 +79,50 @@ public class EnemyAi : MonoBehaviour
         HardAttack,
     }
 
-    void ChangeAttackState(EnemyAttackState newAttackState) 
+    public enum AttackPriority 
+    {
+        Atk,
+        HardAtk,
+    }
+
+    class Priority
+    {
+        public AttackPriority _priority { get; private set; }
+        public float value;
+
+        public Priority(AttackPriority priority) 
+        {
+            _priority = priority;
+            value = 0f;
+        }
+    }
+
+    class Priortys 
+    {
+        public List<Priority> desireList { get; private set; } = new List<Priority>();
+
+        public Priortys() 
+        {
+            //åˆ—æŒ™å‹ã‚’é…åˆ—ã«å¤‰æ›´ã—ã€Lenghthã‚’ä½¿ãˆã‚‹ã‚ˆã†ã«ã™ã‚‹
+            int priortyNum = System.Enum.GetNames(typeof(AttackPriority)).Length;
+            for (int i = 0; i < priortyNum; i++) 
+            {
+                //åˆ—æŒ™å‹ã¯é…åˆ—ã§ã¯ãªã„ã®ã§ã‚¤ãƒ³ãƒ‡ãƒƒã‚¯ã‚¹ã‹ã‚‰å‚ç…§ã§ããªã„
+                AttackPriority priority = (AttackPriority)System.Enum.ToObject(typeof(AttackPriority), i);
+                Priority newPriorty = new Priority(priority);
+
+                desireList.Add(newPriorty);
+            }
+        }
+    }
+
+    void ChangeMoveState(EnemyMoveState newMoveState)
+    {
+        _enemyMoveState = newMoveState;
+        _enemyMoveStateEnter = true;
+    }
+
+    void ChangeAttackState(EnemyAttackState newAttackState)
     {
         _enemyAtkState = newAttackState;
         _enemyAtkStateEnter = true;
@@ -115,7 +152,7 @@ public class EnemyAi : MonoBehaviour
                 Idle();
                 if (distance < _detectionRange && _enemyAtkState != EnemyAttackState.Attack)
                 {
-                    Debug.Log("ƒvƒŒƒCƒ„[‚ğ”­Œ©I");
+                    Debug.Log("ãƒ—ãƒ¬ã‚¤ãƒ¤ãƒ¼ã‚’ç™ºè¦‹ï¼");
                     ChangeMoveState(EnemyMoveState.Walk);
                 }
                 break;
@@ -127,12 +164,12 @@ public class EnemyAi : MonoBehaviour
                 }
 
                 ChangeAttackState(EnemyAttackState.NotAttack);
-                Debug.Log("•à‚¢‚Ä‚éIII");
-                
-                if (_enemyHp <= _enemyHealValue && _potion > 0) 
+                Debug.Log("æ­©ã„ã¦ã‚‹ï¼ï¼ï¼");
+
+                if (_enemyHp <= _enemyHealValue && _potion > 0)
                 {
                     _potion--;
-                    Debug.Log(" ƒ|[ƒVƒ‡ƒ“‚ğÁ”ï");
+                    Debug.Log(" ãƒãƒ¼ã‚·ãƒ§ãƒ³ã‚’æ¶ˆè²»");
                     ChangeMoveState(EnemyMoveState.Heal);
                 }
 
@@ -145,11 +182,11 @@ public class EnemyAi : MonoBehaviour
             case EnemyMoveState.Heal:
                 //isMovingBack = false;
                 //if (isMovingBack == true)
-               // {
-                    Debug.Log("‰ñ•œ‚µ‚Ä‚éIII");
-                    Heal();
+                // {
+                Debug.Log("å›å¾©ã—ã¦ã‚‹ï¼ï¼ï¼");
+                Heal();
                 //}
-        
+
                 break;
 
             case EnemyMoveState.Dash:
@@ -157,24 +194,24 @@ public class EnemyAi : MonoBehaviour
                 break;
         }
 
-        //UŒ‚‚ÌƒN[ƒ‹ƒ^ƒCƒ€‚ÌŒvZ
-        //—Dæ“x‚Ìİ’è
+        //æ”»æ’ƒã®ã‚¯ãƒ¼ãƒ«ã‚¿ã‚¤ãƒ ã®è¨ˆç®—
+        //å„ªå…ˆåº¦ã®è¨­å®š
         #region
         CoolTime(_enemyNormalAtk_Time);
         #endregion
-        switch (_enemyAtkState) 
+        switch (_enemyAtkState)
         {
             case EnemyAttackState.AttackIdle:
                 break;
 
             case EnemyAttackState.NotAttack:
-                if (_enemyAtkStateEnter) 
+                if (_enemyAtkStateEnter)
                 {
                     _enemyAtkStateEnter = false;
-                    Debug.Log("UŒ‚‚ğ€”õ’†");
+                    Debug.Log("æ”»æ’ƒã‚’æº–å‚™ä¸­");
                 }
 
-                if (_enemyAtkCoolTime >= 1) 
+                if (_enemyAtkCoolTime >= 1)
                 {
                     ChangeAttackState(EnemyAttackState.Attack);
                     ChangeMoveState(EnemyMoveState.Idle);
@@ -201,21 +238,21 @@ public class EnemyAi : MonoBehaviour
         }
     }
 
-    //ˆÚ“®ŠÖ˜A
+    //ï¼ï¼ï¼ç§»å‹•é–¢é€£ï¼ï¼ï¼
     #region
-    private void Idle() 
+    private void Idle()
     {
-        
+
     }
 
     private void Walk()
     {
         Vector2 direction = (_player_Pos.position - transform.position).normalized;
 
-        // …•½•ûŒü‚ÌˆÚ“®‚¾‚¯
+        // æ°´å¹³æ–¹å‘ã®ç§»å‹•ã ã‘
         _rb.linearVelocity = new Vector2(direction.x * _moveSpeed, _rb.linearVelocity.y);
 
-        // ¶‰E‚ğ”½“]‚³‚¹‚éiƒXƒP[ƒ‹‚ğˆÛ‚µ‚½‚Ü‚Üj
+        // å·¦å³ã‚’åè»¢ã•ã›ã‚‹ï¼ˆã‚¹ã‚±ãƒ¼ãƒ«ã‚’ç¶­æŒã—ãŸã¾ã¾ï¼‰
         if (direction.x != 0)
         {
             transform.localScale = new Vector3(
@@ -233,7 +270,7 @@ public class EnemyAi : MonoBehaviour
     }
     #endregion
 
-    //‘Ì—ÍŠÖ˜A
+    //ï¼ï¼ï¼ä½“åŠ›é–¢é€£ï¼ï¼ï¼
     #region
     public float GetEnemyHp()
     {
@@ -243,18 +280,18 @@ public class EnemyAi : MonoBehaviour
     public void TakeEnemyDamage(float damage)
     {
         _enemyHp -= damage;
-        Debug.Log("“G‚Ìc‚èHP: " + _enemyHp);
-        if (_enemyHp <= 0) 
+        Debug.Log("æ•µã®æ®‹ã‚ŠHP: " + _enemyHp);
+        if (_enemyHp <= 0)
         {
             Die();
         }
     }
 
-    private void Heal() 
+    private void Heal()
     {
-        //ƒq[ƒ‹
+        //ãƒ’ãƒ¼ãƒ«
         _enemyHp += _potionHeal;
-        if (_enemyHp > _enemyHealValue) 
+        if (_enemyHp > _enemyHealValue)
         {
             _enemyHp = _enemyMaxHp;
         }
@@ -262,50 +299,51 @@ public class EnemyAi : MonoBehaviour
         Debug.Log(_enemyHp);
     }
 
-    private void Die() 
+    private void Die()
     {
         Debug.Log(_daijoubu);
         Destroy(gameObject);
     }
     #endregion
 
-    //UŒ‚ŠÖ˜A
+    //ï¼ï¼ï¼æ”»æ’ƒé–¢é€£ï¼ï¼ï¼
     #region
     /// <summary>
-    /// UŒ‚‚ÌƒN[ƒ‹ƒ^ƒCƒ€‚ğæ“¾
+    /// æ”»æ’ƒã®ã‚¯ãƒ¼ãƒ«ã‚¿ã‚¤ãƒ ã‚’å–å¾—
     /// </summary>
-    /// <param name="State">EnemyAttackState‚ğ“ü—Í</param>
-    /// <param name="attackJudge">ŒvZ‚µ‚½ŠÔ‚ğ•Û‘¶‚·‚éˆø”(float)</param>
-    /// <param name="attackCollTime">‘Ò‚ÂŠÔ‚ğ“ü—Í(float)</param>
+    /// <param name="State">EnemyAttackStateã‚’å…¥åŠ›</param>
+    /// <param name="attackJudge">è¨ˆç®—ã—ãŸæ™‚é–“ã‚’ä¿å­˜ã™ã‚‹å¼•æ•°(float)</param>
+    /// <param name="attackCollTime">å¾…ã¤æ™‚é–“ã‚’å…¥åŠ›(float)</param>
     private void CoolTime(float attackCollTime)
     {
         _enemyAtkCoolTime += Time.deltaTime / attackCollTime;
-        //‚¿‚á‚ñ‚Æ“®‚­
+        //ã¡ã‚ƒã‚“ã¨å‹•ã
     }
+
     private void Attack()
     {
         _enemyFinalDmg = _enemyNormalAtk_Dmg;
         StartCoroutine(DoEnemyNormalAttack());
     }
 
-    private void HardAttack() 
+    private void HardAttack()
     {
 
     }
-    #endregion
+   
 
     private void OnTriggerEnter2D(Collider2D other)
     {
         Debug.Log("OnTriggerEnter2D: " + other.name);
-        if (_NormalAtk_col.enabled) // UŒ‚”»’è‚ªON‚Ì‚Æ‚«‚¾‚¯
+        if (_NormalAtk_col.enabled) // æ”»æ’ƒåˆ¤å®šãŒONã®ã¨ãã ã‘
         {
             if (other.CompareTag("Player"))
             {
                 Player player = other.GetComponentInParent<Player>();
                 if (player != null)
                 {
-                    player.TakePlayerDamage(_enemyFinalDmg); // ƒvƒŒƒCƒ„[‚ÌHP‚ğí‚é
-                    Debug.Log("‚¤‚Á‚Ğ‚å[[[[[[[[[[[[[[");
+                    player.TakePlayerDamage(_enemyFinalDmg); // ãƒ—ãƒ¬ã‚¤ãƒ¤ãƒ¼ã®HPã‚’å‰Šã‚‹
+                    Debug.Log("ã†ã£ã²ã‚‡ãƒ¼ãƒ¼ãƒ¼ãƒ¼ãƒ¼ãƒ¼ãƒ¼ãƒ¼ãƒ¼ãƒ¼ãƒ¼ãƒ¼ãƒ¼ãƒ¼");
                     ChangeAttackState(EnemyAttackState.NotAttack);
                 }
             }
@@ -314,7 +352,7 @@ public class EnemyAi : MonoBehaviour
 
     private IEnumerator DoEnemyNormalAttack()
     {
-        Debug.Log("UŒ‚‚ÌƒRƒ‰ƒCƒ_[‚ğƒIƒ“");
+        Debug.Log("æ”»æ’ƒã®ã‚³ãƒ©ã‚¤ãƒ€ãƒ¼ã‚’ã‚ªãƒ³");
         _NormalAtk_col.enabled = true;
 
         yield return new WaitForSeconds(0.3f);
@@ -322,5 +360,7 @@ public class EnemyAi : MonoBehaviour
         _NormalAtk_col.enabled = false;
 
         ChangeAttackState(EnemyAttackState.NotAttack);
+        
     }
+    #endregion
 }

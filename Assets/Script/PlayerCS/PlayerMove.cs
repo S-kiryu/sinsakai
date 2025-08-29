@@ -1,37 +1,37 @@
-using System.Collections;
+ï»¿using System.Collections;
 using UnityEngine;
 
 public class Player : MonoBehaviour
 {
-    private string _sin = "‚µ‚ñ‚Å‚µ‚Ü‚¤‚Æ‚Í‚È‚³‚¯‚È‚¢I";
+    private string _sin = "ã—ã‚“ã§ã—ã¾ã†ã¨ã¯ãªã•ã‘ãªã„ï¼";
 
-    //ƒXƒe[ƒ^ƒXŠÖ˜A
+    //ï¼ï¼ï¼ã‚¹ãƒ†ãƒ¼ã‚¿ã‚¹é–¢é€£ï¼ï¼ï¼
     [SerializeField]
     private float _playerHp = 100;
     private Vector3 _originalScale;
 
-    //ˆÚ“®Œn
-    [Tooltip("ˆÚ“®ƒXƒs[ƒh")]
+    //ï¼ï¼ï¼ç§»å‹•ç³»ï¼ï¼ï¼
+    [Tooltip("ç§»å‹•ã‚¹ãƒ”ãƒ¼ãƒ‰")]
     [SerializeField]
     private float _moveSpeed = 5f;
 
-    [Tooltip("ƒWƒƒƒ“ƒv—Í")]
+    [Tooltip("ã‚¸ãƒ£ãƒ³ãƒ—åŠ›")]
     [SerializeField]
     private float _jumpForce = 7f;
 
-    //‰ñ”ğŒn
-    [Tooltip("‰ñ”ğƒXƒs[ƒh")]
+    //ï¼ï¼ï¼å›é¿ç³»ï¼ï¼ï¼
+    [Tooltip("å›é¿ã‚¹ãƒ”ãƒ¼ãƒ‰")]
     [SerializeField]
     private float _rollSpeed = 10f;
 
-    [Tooltip("‰ñ”ğŠÔ")]
-    [Header("‰ñ”ğŠÔ")]
+    [Tooltip("å›é¿æ™‚é–“")]
+    [Header("å›é¿æ™‚é–“")]
     [SerializeField]
     private float _rollDuration = 0.4f;
 
     private float _rollTimer = 0f;
 
-    [Tooltip("‰ñ”ğƒL[")]
+    [Tooltip("å›é¿ã‚­ãƒ¼")]
     [SerializeField]
     private KeyCode _rollKey = KeyCode.LeftShift;
 
@@ -41,27 +41,27 @@ public class Player : MonoBehaviour
     private bool _isFacingRight = true;
 
 
-    //UŒ‚Œn
-    [Tooltip("’ÊíUŒ‚ƒL[")]
+    //ï¼ï¼ï¼æ”»æ’ƒç³»ï¼ï¼ï¼
+    [Tooltip("é€šå¸¸æ”»æ’ƒã‚­ãƒ¼")]
     [SerializeField]
     private KeyCode _punchAttackKey = KeyCode.Z;
 
-    [Tooltip("’ÊíUŒ‚")]
-    [Header("’ÊíUŒ‚")]
+    [Tooltip("é€šå¸¸æ”»æ’ƒ")]
+    [Header("é€šå¸¸æ”»æ’ƒ")]
     [SerializeField]
     private float _punchDmg = 1.0f;
 
-    [Tooltip("’ÊíUŒ‚ƒN[ƒ‹ƒ^ƒCƒ€")]
-    [Header("’ÊíUŒ‚ƒN[ƒ‹ƒ^ƒCƒ€")]
+    [Tooltip("é€šå¸¸æ”»æ’ƒã‚¯ãƒ¼ãƒ«ã‚¿ã‚¤ãƒ ")]
+    [Header("é€šå¸¸æ”»æ’ƒã‚¯ãƒ¼ãƒ«ã‚¿ã‚¤ãƒ ")]
     [SerializeField]
     private float _punchCollTime = 10f;
 
-    [Tooltip("‹­UŒ‚ƒL[")]
+    [Tooltip("å¼·æ”»æ’ƒã‚­ãƒ¼")]
     [SerializeField]
     private KeyCode _projectileKey = KeyCode.X;
 
-    [Tooltip("‰“‹——£UŒ‚")]
-    [Header("‰“‹——£UŒ‚")]
+    [Tooltip("é è·é›¢æ”»æ’ƒ")]
+    [Header("é è·é›¢æ”»æ’ƒ")]
     [SerializeField]
     private float _projectileDmg = 2.0f;
     private float _attackDamage;
@@ -70,12 +70,12 @@ public class Player : MonoBehaviour
     private Collider2D _col;
     private Quaternion _originalRotation;
 
-    [SerializeField] 
+    [SerializeField]
     private Collider2D _punchAttackCollider;
     [SerializeField]
     private Collider2D _projectileAttackCollider;
 
-    // ’n–Ê”»’è
+    // ï¼ï¼ï¼åœ°é¢åˆ¤å®šï¼ï¼ï¼
     private bool _isGrounded;
 
     void Start()
@@ -84,12 +84,12 @@ public class Player : MonoBehaviour
         _col = GetComponent<Collider2D>();
         _originalRotation = transform.rotation;
 
-        _rb.gravityScale = 3f; // d—Í‚ğ—LŒø‚É‚·‚é
-        _rb.freezeRotation = true; // ‰ñ“]‚µ‚È‚¢‚æ‚¤‚ÉŒÅ’è
+        _rb.gravityScale = 3f; // é‡åŠ›ã‚’æœ‰åŠ¹ã«ã™ã‚‹
+        _rb.freezeRotation = true; // å›è»¢ã—ãªã„ã‚ˆã†ã«å›ºå®š
         _punchAttackCollider.enabled = false;
         _projectileAttackCollider.enabled = false;
 
-        //Œ³‚ÌƒXƒP[ƒ‹‚ğ•Û‘¶
+        //å…ƒã®ã‚¹ã‚±ãƒ¼ãƒ«ã‚’ä¿å­˜
         _originalScale = transform.lossyScale;
     }
 
@@ -100,7 +100,7 @@ public class Player : MonoBehaviour
         HandleJump();
         HandleAttack();
     }
-    //HP‚ÉŠÖ‚·‚é“®‚«
+    //ï¼ï¼ï¼HPã«é–¢ã™ã‚‹å‹•ãï¼ï¼ï¼
     #region
     public float GetEnemyHp()
     {
@@ -110,21 +110,21 @@ public class Player : MonoBehaviour
     public void TakePlayerDamage(float damage)
     {
         _playerHp -= damage;
-        Debug.Log("Player‚Ìc‚èHP: " + _playerHp);
+        Debug.Log("Playerã®æ®‹ã‚ŠHP: " + _playerHp);
         if (_playerHp <= 0)
         {
             PlayerDie();
         }
     }
 
-    private void PlayerDie() 
+    private void PlayerDie()
     {
         Debug.Log(_sin);
         Destroy(gameObject);
     }
     #endregion
 
-    //ˆÚ“®‚ÉŠÖ‚·‚é“®‚«
+    //ï¼ï¼ï¼ç§»å‹•ã«é–¢ã™ã‚‹å‹•ãï¼ï¼ï¼
     #region
     private void HandleMovement()
     {
@@ -142,14 +142,14 @@ public class Player : MonoBehaviour
     }
     #endregion
 
-    //‰ñ”ğ‚ÉŠÖ‚·‚é“®‚«
+    //ï¼ï¼ï¼å›é¿ã«é–¢ã™ã‚‹å‹•ãï¼ï¼ï¼
     #region
     private void HandleRoll()
     {
         if (!_isRolling) return;
 
         _rollTimer -= Time.deltaTime;
-        _rb.linearVelocity = _rollDirection * _rollSpeed; // Rigidbody‚ÅˆÚ“®‚³‚¹‚é
+        _rb.linearVelocity = _rollDirection * _rollSpeed; // Rigidbodyã§ç§»å‹•ã•ã›ã‚‹
 
         transform.Rotate(0f, 0f, -360f * Time.deltaTime);
 
@@ -164,7 +164,7 @@ public class Player : MonoBehaviour
 
         _rollDirection = _isFacingRight ? Vector2.right : Vector2.left;
 
-        _col.enabled = false; // –³“GŠÔ‚Ì•\Œ»
+        _col.enabled = false; // ç„¡æ•µæ™‚é–“ã®è¡¨ç¾
     }
 
     private void EndRoll()
@@ -174,21 +174,21 @@ public class Player : MonoBehaviour
         transform.rotation = _originalRotation;
         _col.enabled = true;
 
-        // ƒ[ƒ‹Œã‚É‘¬“x‚ğƒŠƒZƒbƒg
+        // ãƒ­ãƒ¼ãƒ«å¾Œã«é€Ÿåº¦ã‚’ãƒªã‚»ãƒƒãƒˆ
         _rb.linearVelocity = Vector2.zero;
     }
 
     private void Flip(bool faceRight)
     {
-            _isFacingRight = faceRight;
-            transform.localScale = new Vector3(
-        _originalScale.x * (faceRight ? 1 : -1),
-        _originalScale.y,
-        _originalScale.z);
+        _isFacingRight = faceRight;
+        transform.localScale = new Vector3(
+    _originalScale.x * (faceRight ? 1 : -1),
+    _originalScale.y,
+    _originalScale.z);
     }
     #endregion
 
-    //ƒWƒƒƒ“ƒv‚ÉŠÖ‚·‚é“®‚«
+    //ï¼ï¼ï¼ã‚¸ãƒ£ãƒ³ãƒ—ã«é–¢ã™ã‚‹å‹•ãï¼ï¼ï¼
     #region
     private void HandleJump()
     {
@@ -200,71 +200,71 @@ public class Player : MonoBehaviour
     }
     #endregion
 
-    //UŒ‚‚ÉŠÖ‚·‚é“®‚«
+    //ï¼ï¼ï¼æ”»æ’ƒã«é–¢ã™ã‚‹å‹•ãï¼ï¼ï¼
     #region
     private void HandleAttack()
     {
         if (Input.GetKeyDown(_punchAttackKey))
         {
-            Debug.Log("’ÊíUŒ‚I");
+            Debug.Log("é€šå¸¸æ”»æ’ƒï¼");
             _attackDamage = _punchDmg;
             StartCoroutine(DoPunchAttack());
-            // ƒAƒjƒ[ƒVƒ‡ƒ“‚âUŒ‚”»’èŒÄ‚Ño‚µ
+            // ã‚¢ãƒ‹ãƒ¡ãƒ¼ã‚·ãƒ§ãƒ³ã‚„æ”»æ’ƒåˆ¤å®šå‘¼ã³å‡ºã—
         }
 
         if (Input.GetKeyDown(_projectileKey))
         {
-            Debug.Log("‹­UŒ‚I");
+            Debug.Log("å¼·æ”»æ’ƒï¼");
             _attackDamage = _projectileDmg;
             StartCoroutine(DoProjectileAttack());
-            // ‹­UŒ‚”»’èŒÄ‚Ño‚µ
+            // å¼·æ”»æ’ƒåˆ¤å®šå‘¼ã³å‡ºã—
         }
     }
 
-    //UŒ‚‚Ì“–‚½‚è”»’è
+    //æ”»æ’ƒã®å½“ãŸã‚Šåˆ¤å®š
     private IEnumerator DoPunchAttack()
     {
-        Debug.Log("ƒRƒ‰ƒCƒ_[‚ğƒIƒ“");
-        // UŒ‚ŠJn‚ÉƒRƒ‰ƒCƒ_[ON
+        Debug.Log("ã‚³ãƒ©ã‚¤ãƒ€ãƒ¼ã‚’ã‚ªãƒ³");
+        // æ”»æ’ƒé–‹å§‹æ™‚ã«ã‚³ãƒ©ã‚¤ãƒ€ãƒ¼ON
         _punchAttackCollider.enabled = true;
 
-        // UŒ‚ŠÔ‚¾‚¯‘Ò‹@i—á: 0.3•bj
+        // æ”»æ’ƒæ™‚é–“ã ã‘å¾…æ©Ÿï¼ˆä¾‹: 0.3ç§’ï¼‰
         yield return new WaitForSeconds(0.3f);
 
-        // UŒ‚I—¹‚ÉƒRƒ‰ƒCƒ_[OFF
+        // æ”»æ’ƒçµ‚äº†æ™‚ã«ã‚³ãƒ©ã‚¤ãƒ€ãƒ¼OFF
         _punchAttackCollider.enabled = false;
     }
 
     private IEnumerator DoProjectileAttack()
     {
-        Debug.Log("ƒRƒ‰ƒCƒ_[‚ğƒIƒ“");
-        // UŒ‚ŠJn‚ÉƒRƒ‰ƒCƒ_[ON
+        Debug.Log("ã‚³ãƒ©ã‚¤ãƒ€ãƒ¼ã‚’ã‚ªãƒ³");
+        // æ”»æ’ƒé–‹å§‹æ™‚ã«ã‚³ãƒ©ã‚¤ãƒ€ãƒ¼ON
         _projectileAttackCollider.enabled = true;
 
-        // UŒ‚ŠÔ‚¾‚¯‘Ò‹@i—á: 0.3•bj
+        // æ”»æ’ƒæ™‚é–“ã ã‘å¾…æ©Ÿï¼ˆä¾‹: 0.3ç§’ï¼‰
         yield return new WaitForSeconds(0.3f);
 
-        // UŒ‚I—¹‚ÉƒRƒ‰ƒCƒ_[OFF
+        // æ”»æ’ƒçµ‚äº†æ™‚ã«ã‚³ãƒ©ã‚¤ãƒ€ãƒ¼OFF
         _projectileAttackCollider.enabled = false;
     }
 
     private void OnTriggerEnter2D(Collider2D other)
     {
-        if (_punchAttackCollider.enabled || _projectileAttackCollider.enabled) // UŒ‚”»’è‚ªON‚Ì‚Æ‚«‚¾‚¯
+        if (_punchAttackCollider.enabled || _projectileAttackCollider.enabled) // æ”»æ’ƒåˆ¤å®šãŒONã®ã¨ãã ã‘
         {
             if (other.CompareTag("Enemy"))
             {
                 EnemyAi enemy = other.GetComponent<EnemyAi>();
                 if (enemy != null)
                 {
-                    enemy.TakeEnemyDamage(_attackDamage); // “G‚ÌHP‚ğí‚é
+                    enemy.TakeEnemyDamage(_attackDamage); // æ•µã®HPã‚’å‰Šã‚‹
                 }
             }
         }
     }
     #endregion
 
-    // ’n–Ê‚Ì“–‚½‚è”»’è
+    // ï¼ï¼ï¼åœ°é¢ã®å½“ãŸã‚Šåˆ¤å®šï¼ï¼ï¼
     #region
     private void OnCollisionEnter2D(Collision2D collision)
     {
