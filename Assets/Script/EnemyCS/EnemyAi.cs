@@ -59,7 +59,6 @@ public class EnemyAi : MonoBehaviour
     private Collider2D _NormalAtk_col;
 
     private float _enemyFinalDmg;
-    private float _enemyAtkCoolTime = 0; //0～1で判断
     private bool _enemyAtkStateEnter = true;
 
     public enum EnemyMoveState
@@ -79,7 +78,7 @@ public class EnemyAi : MonoBehaviour
         HardAttack,
     }
 
-    public enum AttackPriority 
+    public enum PriorityType 
     {
         Atk,
         HardAtk,
@@ -87,34 +86,60 @@ public class EnemyAi : MonoBehaviour
 
     class Priority
     {
-        public AttackPriority _priority { get; private set; }
+        public PriorityType _type { get; private set; }
         public float value;
 
-        public Priority(AttackPriority priority) 
+        public Priority(PriorityType type) 
         {
-            _priority = priority;
+            _type = type;
             value = 0f;
         }
     }
 
     class Priortys 
     {
-        public List<Priority> desireList { get; private set; } = new List<Priority>();
+        public List<Priority> PriorityList { get; private set; } = new List<Priority>();
 
-        public Priortys() 
+        public Priority GetPriority(PriorityType Type)
+        #region
+        {
+            foreach (Priority priority in PriorityList) 
+            {
+                if (priority._type == Type) 
+                {
+                    return priority;
+                }
+            }
+            return null;
+        }
+        #endregion
+
+        public void SortPriority()
+        #region
+        {
+            PriorityList.Sort((Priority1, Priority2) => Priority2.value.CompareTo(Priority1.value));
+        }
+        #endregion
+
+        //コンストラクタ
+        public Priortys()
+        #region
         {
             //列挙型を配列に変更し、Lenghthを使えるようにする
-            int priortyNum = System.Enum.GetNames(typeof(AttackPriority)).Length;
+            int priortyNum = System.Enum.GetNames(typeof(PriorityType)).Length;
             for (int i = 0; i < priortyNum; i++) 
             {
                 //列挙型は配列ではないのでインデックスから参照できない
-                AttackPriority priority = (AttackPriority)System.Enum.ToObject(typeof(AttackPriority), i);
-                Priority newPriorty = new Priority(priority);
+                PriorityType type = (PriorityType)System.Enum.ToObject(typeof(PriorityType), i);
+                Priority newPriorty = new Priority(type);
 
-                desireList.Add(newPriorty);
+                PriorityList.Add(newPriorty);
             }
         }
+        #endregion
     }
+
+    Priortys prioritys = new Priortys();
 
     void ChangeMoveState(EnemyMoveState newMoveState)
     {
@@ -144,6 +169,7 @@ public class EnemyAi : MonoBehaviour
 
     void Update()
     {
+
         float distance = Vector2.Distance(transform.position, _player_Pos.position);
 
         switch (_enemyMoveState)
@@ -197,10 +223,12 @@ public class EnemyAi : MonoBehaviour
         //攻撃のクールタイムの計算
         //優先度の設定
         #region
-        CoolTime(_enemyNormalAtk_Time);
+        CoolTime(PriorityType.Atk, _enemyNormalAtk_Time);
+
         #endregion
         switch (_enemyAtkState)
         {
+            //コルーチンでする
             case EnemyAttackState.AttackIdle:
                 break;
 
@@ -211,11 +239,12 @@ public class EnemyAi : MonoBehaviour
                     Debug.Log("攻撃を準備中");
                 }
 
-                if (_enemyAtkCoolTime >= 1)
+                Priority atkPriority = prioritys.GetPriority(PriorityType.Atk);
+                if (atkPriority != null && atkPriority.value >= 1f)
                 {
                     ChangeAttackState(EnemyAttackState.Attack);
                     ChangeMoveState(EnemyMoveState.Idle);
-                    _enemyAtkCoolTime = 0;
+                    atkPriority.value = 0f; // クールタイムリセット
                 }
 
                 break;
@@ -314,10 +343,13 @@ public class EnemyAi : MonoBehaviour
     /// <param name="State">EnemyAttackStateを入力</param>
     /// <param name="attackJudge">計算した時間を保存する引数(float)</param>
     /// <param name="attackCollTime">待つ時間を入力(float)</param>
-    private void CoolTime(float attackCollTime)
+    private void CoolTime(PriorityType type, float attackCollTime)
     {
-        _enemyAtkCoolTime += Time.deltaTime / attackCollTime;
-        //ちゃんと動く
+        Priority priority = prioritys.GetPriority(type);
+        if (priority != null)
+        {
+            priority.value += Time.deltaTime / attackCollTime;
+        }
     }
 
     private void Attack()
