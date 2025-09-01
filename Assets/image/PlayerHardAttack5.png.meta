@@ -1,10 +1,10 @@
 fileFormatVersion: 2
-guid: 0d73db8010c32a34dbc8ee2c06964007
+guid: cfccaab124eb0dd41ad346bb21a9a46a
 TextureImporter:
   internalIDToNameTable:
   - first:
-      213: 1803467104101578439
-    second: "\u7121\u984C155_20250901105723 1_0"
+      213: 3868443333793960789
+    second: PlayerHardAttack5_0
   externalObjects: {}
   serializedVersion: 13
   mipmaps:
@@ -100,13 +100,13 @@ TextureImporter:
     serializedVersion: 2
     sprites:
     - serializedVersion: 2
-      name: "\u7121\u984C155_20250901105723 1_0"
+      name: PlayerHardAttack5_0
       rect:
         serializedVersion: 2
-        x: 34
-        y: 188
-        width: 192
-        height: 246
+        x: 198
+        y: 114
+        width: 396
+        height: 254
       alignment: 0
       pivot: {x: 0, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
@@ -115,8 +115,8 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: -1
       bones: []
-      spriteID: 7c6b318a6c3370910800000000000000
-      internalID: 1803467104101578439
+      spriteID: 553548857b87fa530800000000000000
+      internalID: 3868443333793960789
       vertices: []
       indices: 
       edges: []
@@ -135,7 +135,7 @@ TextureImporter:
     spriteCustomMetadata:
       entries: []
     nameFileIdTable:
-      "\u7121\u984C155_20250901105723 1_0": 1803467104101578439
+      PlayerHardAttack5_0: 3868443333793960789
   mipmapLimitGroupName: 
   pSDRemoveMatte: 0
   userData: 

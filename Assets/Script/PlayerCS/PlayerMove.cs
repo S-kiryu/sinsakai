@@ -220,10 +220,12 @@ public class Player : MonoBehaviour
 
         if (Input.GetKeyDown(_projectileKey))
         {
+            
             Debug.Log("強攻撃！");
             _attackDamage = _projectileDmg;
             StartCoroutine(DoProjectileAttack());
             // 強攻撃判定呼び出し
+            
         }
     }
 
@@ -246,12 +248,14 @@ public class Player : MonoBehaviour
         Debug.Log("コライダーをオン");
         // 攻撃開始時にコライダーON
         _projectileAttackCollider.enabled = true;
+        anim.SetBool("attack", true);
 
         // 攻撃時間だけ待機（例: 0.3秒）
-        yield return new WaitForSeconds(0.3f);
+        yield return new WaitForSeconds(0.5f);
 
         // 攻撃終了時にコライダーOFF
         _projectileAttackCollider.enabled = false;
+        anim.SetBool("attack", false);
     }
 
     private void OnTriggerEnter2D(Collider2D other)
