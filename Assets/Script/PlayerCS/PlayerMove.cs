@@ -78,10 +78,14 @@ public class Player : MonoBehaviour
     // ＝＝＝地面判定＝＝＝
     private bool _isGrounded;
 
+    //モーション関連
+    private Animator anim = null;
+
     void Start()
     {
         _rb = GetComponent<Rigidbody2D>();
         _col = GetComponent<Collider2D>();
+        anim = GetComponent<Animator>();
         _originalRotation = transform.rotation;
 
         _rb.gravityScale = 3f; // 重力を有効にする
@@ -129,11 +133,12 @@ public class Player : MonoBehaviour
     private void HandleMovement()
     {
         if (_isMovementLocked || _isRolling) return;
-
         float moveX = Input.GetAxisRaw("Horizontal");
         Vector2 velocity = _rb.linearVelocity;
         velocity.x = moveX * _moveSpeed;
         _rb.linearVelocity = velocity;
+
+        anim.SetBool("ran", moveX != 0);
 
         if (moveX > 0 && !_isFacingRight) Flip(true);
         else if (moveX < 0 && _isFacingRight) Flip(false);
