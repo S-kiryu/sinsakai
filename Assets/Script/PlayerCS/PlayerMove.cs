@@ -199,6 +199,7 @@ public class Player : MonoBehaviour
     {
         if (Input.GetKeyDown(KeyCode.Space) && _isGrounded && !_isRolling)
         {
+            anim.SetBool("jump", true);
             _rb.linearVelocity = new Vector2(_rb.linearVelocity.x, _jumpForce);
             _isGrounded = false;
         }
@@ -275,7 +276,9 @@ public class Player : MonoBehaviour
     {
         if (collision.gameObject.CompareTag("groundCheck"))
         {
+            anim.SetBool("jump", false);
             _isGrounded = true;
+            
         }
     }
 

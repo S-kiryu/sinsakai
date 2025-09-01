@@ -154,7 +154,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   _playerHp: 100
   _moveSpeed: 5
-  _jumpForce: 7
+  _jumpForce: 15
   _rollSpeed: 10
   _rollDuration: 0.4
   _rollKey: 304
