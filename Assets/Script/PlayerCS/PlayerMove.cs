@@ -218,7 +218,7 @@ public class Player : MonoBehaviour
             // アニメーションや攻撃判定呼び出し
         }
 
-        if (Input.GetKeyDown(_projectileKey))
+        if (Input.GetKeyDown(_projectileKey)&& _projectileAttackCollider.enabled == false)
         {
             
             Debug.Log("強攻撃！");
