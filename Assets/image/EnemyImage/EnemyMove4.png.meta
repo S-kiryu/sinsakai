@@ -1,10 +1,10 @@
 fileFormatVersion: 2
-guid: 1cabd0fd7ed198c4d968551a715cb4e5
+guid: 626ba4f40b650794e86a93564577a422
 TextureImporter:
   internalIDToNameTable:
   - first:
-      213: 2385504443127816700
-    second: "\u7121\u984C155_20250901105723_0"
+      213: -1779931096782010817
+    second: EnemyMove4_0
   externalObjects: {}
   serializedVersion: 13
   mipmaps:
@@ -100,13 +100,13 @@ TextureImporter:
     serializedVersion: 2
     sprites:
     - serializedVersion: 2
-      name: "\u7121\u984C155_20250901105723_0"
+      name: EnemyMove4_0
       rect:
         serializedVersion: 2
-        x: 34
-        y: 188
-        width: 192
-        height: 246
+        x: 64
+        y: 137
+        width: 318
+        height: 238
       alignment: 0
       pivot: {x: 0, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
@@ -115,8 +115,8 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: -1
       bones: []
-      spriteID: cf1efbee6a30b1120800000000000000
-      internalID: 2385504443127816700
+      spriteID: f3603a3191a6c47e0800000000000000
+      internalID: -1779931096782010817
       vertices: []
       indices: 
       edges: []
@@ -135,7 +135,7 @@ TextureImporter:
     spriteCustomMetadata:
       entries: []
     nameFileIdTable:
-      "\u7121\u984C155_20250901105723_0": 2385504443127816700
+      EnemyMove4_0: -1779931096782010817
   mipmapLimitGroupName: 
   pSDRemoveMatte: 0
   userData: 

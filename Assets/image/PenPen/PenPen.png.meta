@@ -1,10 +1,10 @@
 fileFormatVersion: 2
-guid: 0649fa7a9bc97cc4fa59a31bf553b584
+guid: 80b5121cab68e6e439b40c573e633af2
 TextureImporter:
   internalIDToNameTable:
   - first:
-      213: 6066419560655029426
-    second: "\u7121\u984C151_20250830222721_0"
+      213: 7327942319811087721
+    second: PenPen_0
   externalObjects: {}
   serializedVersion: 13
   mipmaps:
@@ -100,13 +100,13 @@ TextureImporter:
     serializedVersion: 2
     sprites:
     - serializedVersion: 2
-      name: "\u7121\u984C151_20250830222721_0"
+      name: PenPen_0
       rect:
         serializedVersion: 2
-        x: 199
-        y: 240
-        width: 646
-        height: 643
+        x: 57
+        y: 0
+        width: 162
+        height: 219
       alignment: 0
       pivot: {x: 0, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
@@ -115,8 +115,8 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: -1
       bones: []
-      spriteID: 2b4035bf270403450800000000000000
-      internalID: 6066419560655029426
+      spriteID: 96d44eaf6b412b560800000000000000
+      internalID: 7327942319811087721
       vertices: []
       indices: 
       edges: []
@@ -135,7 +135,7 @@ TextureImporter:
     spriteCustomMetadata:
       entries: []
     nameFileIdTable:
-      "\u7121\u984C151_20250830222721_0": 6066419560655029426
+      PenPen_0: 7327942319811087721
   mipmapLimitGroupName: 
   pSDRemoveMatte: 0
   userData: 
