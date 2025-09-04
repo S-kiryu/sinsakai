@@ -73,12 +73,12 @@ public class EnemyAi : MonoBehaviour
     public enum EnemyAttackState
     {
         AttackIdle,
-        NotAttack,
+        PreAtkState,
         Attack,
         HardAttack,
     }
 
-    public enum PriorityType 
+    public enum PriorityType
     {
         Atk,
         HardAtk,
@@ -89,23 +89,23 @@ public class EnemyAi : MonoBehaviour
         public PriorityType _type { get; private set; }
         public float value;
 
-        public Priority(PriorityType type) 
+        public Priority(PriorityType type)
         {
             _type = type;
             value = 0f;
         }
     }
 
-    class Priortys 
+    class Priortys
     {
         public List<Priority> PriorityList { get; private set; } = new List<Priority>();
 
         public Priority GetPriority(PriorityType Type)
         #region
         {
-            foreach (Priority priority in PriorityList) 
+            foreach (Priority priority in PriorityList)
             {
-                if (priority._type == Type) 
+                if (priority._type == Type)
                 {
                     return priority;
                 }
@@ -127,7 +127,7 @@ public class EnemyAi : MonoBehaviour
         {
             //列挙型を配列に変更し、Lenghthを使えるようにする
             int priortyNum = System.Enum.GetNames(typeof(PriorityType)).Length;
-            for (int i = 0; i < priortyNum; i++) 
+            for (int i = 0; i < priortyNum; i++)
             {
                 //列挙型は配列ではないのでインデックスから参照できない
                 PriorityType type = (PriorityType)System.Enum.ToObject(typeof(PriorityType), i);
@@ -184,14 +184,18 @@ public class EnemyAi : MonoBehaviour
                 break;
 
             case EnemyMoveState.Walk:
+
+                //もし攻撃中でなければ歩く
                 if (_enemyAtkState != EnemyAttackState.Attack)
                 {
                     Walk();
                 }
 
-                ChangeAttackState(EnemyAttackState.NotAttack);
+                //攻撃できるなら攻撃する
+                ChangeAttackState(EnemyAttackState.PreAtkState);
                 Debug.Log("歩いてる！！！");
 
+                //体力が一定の値を超えたら回復
                 if (_enemyHp <= _enemyHealValue && _potion > 0)
                 {
                     _potion--;
@@ -206,15 +210,11 @@ public class EnemyAi : MonoBehaviour
                 break;
 
             case EnemyMoveState.Heal:
-                //isMovingBack = false;
-                //if (isMovingBack == true)
-                // {
                 Debug.Log("回復してる！！！");
                 Heal();
-                //}
-
                 break;
 
+            //走る動作を
             case EnemyMoveState.Dash:
 
                 break;
@@ -232,7 +232,7 @@ public class EnemyAi : MonoBehaviour
             case EnemyAttackState.AttackIdle:
                 break;
 
-            case EnemyAttackState.NotAttack:
+            case EnemyAttackState.PreAtkState:
                 if (_enemyAtkStateEnter)
                 {
                     _enemyAtkStateEnter = false;
@@ -243,7 +243,7 @@ public class EnemyAi : MonoBehaviour
                 if (atkPriority != null && atkPriority.value >= 1f)
                 {
                     ChangeAttackState(EnemyAttackState.Attack);
-                    ChangeMoveState(EnemyMoveState.Idle);
+                    ChangeMoveState(EnemyMoveState.Walk);
                     atkPriority.value = 0f; // クールタイムリセット
                 }
 
@@ -362,7 +362,7 @@ public class EnemyAi : MonoBehaviour
     {
 
     }
-   
+
 
     private void OnTriggerEnter2D(Collider2D other)
     {
@@ -376,7 +376,7 @@ public class EnemyAi : MonoBehaviour
                 {
                     player.TakePlayerDamage(_enemyFinalDmg); // プレイヤーのHPを削る
                     Debug.Log("うっひょーーーーーーーーーーーーーー");
-                    ChangeAttackState(EnemyAttackState.NotAttack);
+                    ChangeAttackState(EnemyAttackState.PreAtkState);
                 }
             }
         }
@@ -391,8 +391,8 @@ public class EnemyAi : MonoBehaviour
 
         _NormalAtk_col.enabled = false;
 
-        ChangeAttackState(EnemyAttackState.NotAttack);
-        
+        ChangeAttackState(EnemyAttackState.PreAtkState);
+
     }
     #endregion
 }
