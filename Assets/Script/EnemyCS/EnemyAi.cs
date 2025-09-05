@@ -172,9 +172,16 @@ public class EnemyAi : MonoBehaviour
 
     void Update()
     {
-
         float distance = Vector2.Distance(transform.position, _player_Pos.position);
 
+        HandleMoveState(distance);
+        HandleAttackState();
+    }
+
+    //＝＝＝移動関連＝＝＝
+
+    private void HandleMoveState(float distance) 
+    {
         switch (_enemyMoveState)
         {
             case EnemyMoveState.Idle:
@@ -192,7 +199,7 @@ public class EnemyAi : MonoBehaviour
                 //もし攻撃中でなければ歩く
                 if (_enemyAtkState != EnemyAttackState.Attack)
                 {
-                    
+
                     Walk();
                 }
 
@@ -224,55 +231,8 @@ public class EnemyAi : MonoBehaviour
 
                 break;
         }
-
-        //攻撃のクールタイムの計算
-        //優先度の設定
-        #region
-        CoolTime(PriorityType.Atk, _enemyNormalAtk_Time);
-
-        #endregion
-        switch (_enemyAtkState)
-        {
-            //コルーチンでする
-            case EnemyAttackState.AttackIdle:
-                break;
-
-            case EnemyAttackState.PreAtkState:
-                if (_enemyAtkStateEnter)
-                {
-                    _enemyAtkStateEnter = false;
-                    Debug.Log("攻撃を準備中");
-                }
-
-                Priority atkPriority = prioritys.GetPriority(PriorityType.Atk);
-                if (atkPriority != null && atkPriority.value >= 1f)
-                {
-                    ChangeAttackState(EnemyAttackState.Attack);
-                    ChangeMoveState(EnemyMoveState.Walk);
-                    atkPriority.value = 0f; // クールタイムリセット
-                }
-
-                break;
-
-            case EnemyAttackState.Attack:
-
-                if (_enemyAtkStateEnter)
-                {
-                    _enemyAtkStateEnter = false;
-                    Attack();
-                }
-
-                break;
-
-            case EnemyAttackState.HardAttack:
-
-                HardAttack();
-
-                break;
-        }
     }
 
-    //＝＝＝移動関連＝＝＝
     #region
     private void Idle()
     {
@@ -325,10 +285,7 @@ public class EnemyAi : MonoBehaviour
     {
         //ヒール
         _enemyHp += _potionHeal;
-        if (_enemyHp > _enemyHealValue)
-        {
-            _enemyHp = _enemyMaxHp;
-        }
+        _enemyHp = Mathf.Min(_enemyHp, _enemyMaxHp);
         ChangeMoveState(EnemyMoveState.Walk);
         Debug.Log(_enemyHp);
     }
@@ -342,6 +299,59 @@ public class EnemyAi : MonoBehaviour
 
     //＝＝＝攻撃関連＝＝＝
     #region
+
+    
+    private void HandleAttackState() 
+    {
+
+        //攻撃のクールタイムの計算
+        //優先度の設定
+        #region
+        CoolTime(PriorityType.Atk, _enemyNormalAtk_Time);
+
+        #endregion
+
+        switch (_enemyAtkState)
+        {
+            //コルーチンでする
+            case EnemyAttackState.AttackIdle:
+                break;
+
+            case EnemyAttackState.PreAtkState:
+                if (_enemyAtkStateEnter)
+                {
+                    _enemyAtkStateEnter = false;
+                    Debug.Log("攻撃を準備中");
+                }
+
+                Priority atkPriority = prioritys.GetPriority(PriorityType.Atk);
+                if (atkPriority != null && atkPriority.value >= 1f)
+                {
+                    ChangeAttackState(EnemyAttackState.Attack);
+                    ChangeMoveState(EnemyMoveState.Walk);
+                    atkPriority.value = 0f; // クールタイムリセット
+                }
+
+                break;
+
+            case EnemyAttackState.Attack:
+
+                if (_enemyAtkStateEnter)
+                {
+                    _enemyAtkStateEnter = false;
+                    Attack();
+                }
+
+                break;
+
+            case EnemyAttackState.HardAttack:
+
+                HardAttack();
+
+                break;
+        }
+    }
+
     /// <summary>
     /// 攻撃のクールタイムを取得
     /// </summary>

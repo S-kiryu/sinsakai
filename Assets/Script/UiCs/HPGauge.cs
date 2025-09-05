@@ -21,7 +21,7 @@ public class HPGauge : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        float hp = player.GetEnemyHp();
+        float hp = player.GetPlayerHp();
         _image.fillAmount = hp/100;
         Debug.Log("Player HP: " + hp);
         

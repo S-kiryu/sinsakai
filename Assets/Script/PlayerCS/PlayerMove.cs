@@ -106,7 +106,7 @@ public class Player : MonoBehaviour
     }
     //＝＝＝HPに関する動き＝＝＝
     #region
-    public float GetEnemyHp()
+    public float GetPlayerHp()
     {
         return _playerHp;
     }
