@@ -60,6 +60,8 @@ public class EnemyAi : MonoBehaviour
 
     private float _enemyFinalDmg;
     private bool _enemyAtkStateEnter = true;
+    //アニメーション
+    private Animator anim = null;
 
     public enum EnemyMoveState
     {
@@ -161,6 +163,7 @@ public class EnemyAi : MonoBehaviour
         _enemyMaxHp = _enemyHp;
         _originalScale = transform.localScale;
         _rb = GetComponent<Rigidbody2D>();
+        anim = GetComponent<Animator>();
         _enemyMoveState = EnemyMoveState.Idle;
         _enemyAtkState = EnemyAttackState.AttackIdle;
         _player_Pos = GameObject.FindGameObjectWithTag("Player").transform;
@@ -180,6 +183,7 @@ public class EnemyAi : MonoBehaviour
                 {
                     Debug.Log("プレイヤーを発見！");
                     ChangeMoveState(EnemyMoveState.Walk);
+                    anim.SetBool("move", true);
                 }
                 break;
 
@@ -188,6 +192,7 @@ public class EnemyAi : MonoBehaviour
                 //もし攻撃中でなければ歩く
                 if (_enemyAtkState != EnemyAttackState.Attack)
                 {
+                    
                     Walk();
                 }
 
