@@ -1755,8 +1755,10 @@ MonoBehaviour:
   _potionHeal: 1000
   _backSpeed: 5
   _enemyNormalAtk_Dmg: 10
+  _enemyHardAtk_Dmg: 20
   _enemyNormalAtk_Time: 10
   _NormalAtk_col: {fileID: 928936654}
+  _HardAtk_col: {fileID: 0}
 --- !u!95 &1446838082
 Animator:
   serializedVersion: 7

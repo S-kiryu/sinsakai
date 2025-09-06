@@ -54,9 +54,13 @@ public class EnemyAi : MonoBehaviour
     [SerializeField]
     private float _enemyNormalAtk_Dmg = 10;
     [SerializeField]
+    private float _enemyHardAtk_Dmg = 20;
+    [SerializeField]
     private float _enemyNormalAtk_Time = 10f;
     [SerializeField]
     private Collider2D _NormalAtk_col;
+    [SerializeField]
+    private Collider2D _HardAtk_col;
 
     private float _enemyFinalDmg;
     private bool _enemyAtkStateEnter = true;
@@ -82,7 +86,7 @@ public class EnemyAi : MonoBehaviour
 
     public enum PriorityType
     {
-        Atk,
+        NormalAtk,
         HardAtk,
     }
 
@@ -156,7 +160,6 @@ public class EnemyAi : MonoBehaviour
 
     }
 
-
     void Start()
     {
         _NormalAtk_col.enabled = false;
@@ -169,7 +172,6 @@ public class EnemyAi : MonoBehaviour
         _player_Pos = GameObject.FindGameObjectWithTag("Player").transform;
     }
 
-
     void Update()
     {
         float distance = Vector2.Distance(transform.position, _player_Pos.position);
@@ -179,8 +181,8 @@ public class EnemyAi : MonoBehaviour
     }
 
     //＝＝＝移動関連＝＝＝
-
-    private void HandleMoveState(float distance) 
+    #region
+    private void HandleMoveState(float distance)
     {
         switch (_enemyMoveState)
         {
@@ -233,7 +235,7 @@ public class EnemyAi : MonoBehaviour
         }
     }
 
-    #region
+
     private void Idle()
     {
 
@@ -307,7 +309,7 @@ public class EnemyAi : MonoBehaviour
         //攻撃のクールタイムの計算
         //優先度の設定
         #region
-        CoolTime(PriorityType.Atk, _enemyNormalAtk_Time);
+        CoolTime(PriorityType.NormalAtk, _enemyNormalAtk_Time);
 
         #endregion
 
@@ -324,7 +326,7 @@ public class EnemyAi : MonoBehaviour
                     Debug.Log("攻撃を準備中");
                 }
 
-                Priority atkPriority = prioritys.GetPriority(PriorityType.Atk);
+                Priority atkPriority = prioritys.GetPriority(PriorityType.NormalAtk);
                 if (atkPriority != null && atkPriority.value >= 1f)
                 {
                     ChangeAttackState(EnemyAttackState.Attack);
@@ -375,7 +377,8 @@ public class EnemyAi : MonoBehaviour
 
     private void HardAttack()
     {
-
+        _enemyFinalDmg = _enemyHardAtk_Dmg;
+        StartCoroutine(DoEnemyHardAttack());
     }
 
 
@@ -405,6 +408,19 @@ public class EnemyAi : MonoBehaviour
         yield return new WaitForSeconds(0.3f);
 
         _NormalAtk_col.enabled = false;
+
+        ChangeAttackState(EnemyAttackState.PreAtkState);
+
+    }
+
+    private IEnumerator DoEnemyHardAttack()
+    {
+        Debug.Log("攻撃のコライダーをオン");
+        _HardAtk_col.enabled = true;
+
+        yield return new WaitForSeconds(0.3f);
+
+        _HardAtk_col.enabled = false;
 
         ChangeAttackState(EnemyAttackState.PreAtkState);
 
