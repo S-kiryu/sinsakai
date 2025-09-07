@@ -267,7 +267,7 @@ public class Player : MonoBehaviour
                 EnemyAi enemy = other.GetComponent<EnemyAi>();
                 if (enemy != null)
                 {
-                    enemy.TakeEnemyDamage(_attackDamage); // 敵のHPを削る
+                    enemy.TakeEnemyDamage(_attackDamage, transform.position);  // 敵のHPを削る
                 }
             }
         }

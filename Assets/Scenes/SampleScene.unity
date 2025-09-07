@@ -162,7 +162,7 @@ MonoBehaviour:
   _punchDmg: 1
   _punchCollTime: 10
   _projectileKey: 120
-  _projectileDmg: 2
+  _projectileDmg: 100
   _punchAttackCollider: {fileID: 78039966}
   _projectileAttackCollider: {fileID: 1793918240}
 --- !u!212 &27673925
@@ -1756,7 +1756,7 @@ MonoBehaviour:
   _backSpeed: 5
   _enemyNormalAtk_Dmg: 10
   _enemyHardAtk_Dmg: 20
-  _enemyNormalAtk_Time: 10
+  _enemyNormalAtk_Time: 1
   _NormalAtk_col: {fileID: 928936654}
   _HardAtk_col: {fileID: 0}
 --- !u!95 &1446838082

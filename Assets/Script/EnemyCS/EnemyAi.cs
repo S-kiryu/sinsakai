@@ -56,7 +56,7 @@ public class EnemyAi : MonoBehaviour
     [SerializeField]
     private float _enemyHardAtk_Dmg = 20;
     [SerializeField]
-    private float _enemyNormalAtk_Time = 10f;
+    private float _enemyNormalAtk_Time = 1f;
     [SerializeField]
     private Collider2D _NormalAtk_col;
     [SerializeField]
@@ -197,16 +197,12 @@ public class EnemyAi : MonoBehaviour
                 break;
 
             case EnemyMoveState.Walk:
-
                 //もし攻撃中でなければ歩く
-                if (_enemyAtkState != EnemyAttackState.Attack)
+                if (_enemyAtkState != EnemyAttackState.Attack && _enemyAtkState != EnemyAttackState.PreAtkState)
                 {
-
                     Walk();
                 }
 
-                //攻撃できるなら攻撃する
-                ChangeAttackState(EnemyAttackState.PreAtkState);
                 Debug.Log("歩いてる！！！");
 
                 //体力が一定の値を超えたら回復
@@ -216,7 +212,6 @@ public class EnemyAi : MonoBehaviour
                     Debug.Log(" ポーションを消費");
                     ChangeMoveState(EnemyMoveState.Heal);
                 }
-
                 break;
 
             case EnemyMoveState.Back:
@@ -273,15 +268,43 @@ public class EnemyAi : MonoBehaviour
         return _enemyHp;
     }
 
-    public void TakeEnemyDamage(float damage)
+    public void TakeEnemyDamage(float damage, Vector2 attackerPosition)
     {
         _enemyHp -= damage;
         Debug.Log("敵の残りHP: " + _enemyHp);
+
+        // ノックバック処理
+        float directionX = Mathf.Sign(transform.position.x - attackerPosition.x);
+        Vector2 knockbackDir = new Vector2(directionX, 0.5f).normalized;
+
+        // いったん速度リセットしてからノックバック
+        _rb.linearVelocity = Vector2.zero;
+        _rb.AddForce(knockbackDir * 20f, ForceMode2D.Impulse);
+
+        // 一時的に移動を停止（0.2秒くらい）
+        StartCoroutine(DisableMovement(0.2f));
+
         if (_enemyHp <= 0)
         {
             Die();
         }
     }
+
+    private IEnumerator DisableMovement(float duration)
+    {
+        // 今の状態を保存しておく（例: Walk や Back など）
+        EnemyMoveState prevState = _enemyMoveState;
+
+        // 強制的に Idle にして、動きを止める
+        ChangeMoveState(EnemyMoveState.Idle);
+
+        // duration 秒だけ待つ（ここでコルーチンが一時停止する）
+        yield return new WaitForSeconds(duration);
+
+        // 待ち時間が終わったら、元の状態に戻す
+        ChangeMoveState(prevState);
+    }
+
 
     private void Heal()
     {
@@ -302,21 +325,26 @@ public class EnemyAi : MonoBehaviour
     //＝＝＝攻撃関連＝＝＝
     #region
 
-    
-    private void HandleAttackState() 
+
+    private void HandleAttackState()
     {
+        float distance = Vector2.Distance(transform.position, _player_Pos.position);
+        float attackRange = 3.0f; // 2.0fから3.0fに変更
+
+        // デバッグ用ログ追加
+        Debug.Log($"距離: {distance:F2}, 攻撃状態: {_enemyAtkState}, 移動状態: {_enemyMoveState}");
 
         //攻撃のクールタイムの計算
-        //優先度の設定
-        #region
         CoolTime(PriorityType.NormalAtk, _enemyNormalAtk_Time);
-
-        #endregion
 
         switch (_enemyAtkState)
         {
-            //コルーチンでする
             case EnemyAttackState.AttackIdle:
+                // プレイヤーが攻撃範囲内にいて、移動状態がWalkの時のみ攻撃準備
+                if (distance <= attackRange && _enemyMoveState == EnemyMoveState.Walk)
+                {
+                    ChangeAttackState(EnemyAttackState.PreAtkState);
+                }
                 break;
 
             case EnemyAttackState.PreAtkState:
@@ -324,33 +352,46 @@ public class EnemyAi : MonoBehaviour
                 {
                     _enemyAtkStateEnter = false;
                     Debug.Log("攻撃を準備中");
-                }
 
-                Priority atkPriority = prioritys.GetPriority(PriorityType.NormalAtk);
-                if (atkPriority != null && atkPriority.value >= 1f)
-                {
-                    ChangeAttackState(EnemyAttackState.Attack);
-                    ChangeMoveState(EnemyMoveState.Walk);
-                    atkPriority.value = 0f; // クールタイムリセット
+                    // 0.5秒後に攻撃実行
+                    StartCoroutine(DelayedAttack(0.5f));
                 }
-
                 break;
 
             case EnemyAttackState.Attack:
-
                 if (_enemyAtkStateEnter)
                 {
                     _enemyAtkStateEnter = false;
                     Attack();
                 }
-
                 break;
 
             case EnemyAttackState.HardAttack:
-
-                HardAttack();
-
+                if (_enemyAtkStateEnter)
+                {
+                    _enemyAtkStateEnter = false;
+                    HardAttack();
+                }
                 break;
+        }
+    }
+
+    // 攻撃準備のための遅延コルーチン
+    private IEnumerator DelayedAttack(float delay)
+    {
+        yield return new WaitForSeconds(delay);
+
+        if (_enemyAtkState == EnemyAttackState.PreAtkState)
+        {
+            float distance = Vector2.Distance(transform.position, _player_Pos.position);
+            if (distance <= 3.0f) // 2.0fから3.0fに変更
+            {
+                ChangeAttackState(EnemyAttackState.Attack);
+            }
+            else
+            {
+                ChangeAttackState(EnemyAttackState.AttackIdle);
+            }
         }
     }
 
@@ -371,6 +412,7 @@ public class EnemyAi : MonoBehaviour
 
     private void Attack()
     {
+        Debug.Log("ダメージを代入");
         _enemyFinalDmg = _enemyNormalAtk_Dmg;
         StartCoroutine(DoEnemyNormalAttack());
     }
@@ -385,16 +427,16 @@ public class EnemyAi : MonoBehaviour
     private void OnTriggerEnter2D(Collider2D other)
     {
         Debug.Log("OnTriggerEnter2D: " + other.name);
-        if (_NormalAtk_col.enabled) // 攻撃判定がONのときだけ
+        if (_NormalAtk_col.enabled)
         {
             if (other.CompareTag("Player"))
             {
                 Player player = other.GetComponentInParent<Player>();
                 if (player != null)
                 {
-                    player.TakePlayerDamage(_enemyFinalDmg); // プレイヤーのHPを削る
+                    player.TakePlayerDamage(_enemyFinalDmg);
                     Debug.Log("うっひょーーーーーーーーーーーーーー");
-                    ChangeAttackState(EnemyAttackState.PreAtkState);
+                    // ChangeAttackState(EnemyAttackState.PreAtkState); ←この行を削除！
                 }
             }
         }
@@ -409,21 +451,17 @@ public class EnemyAi : MonoBehaviour
 
         _NormalAtk_col.enabled = false;
 
-        ChangeAttackState(EnemyAttackState.PreAtkState);
-
+        // 攻撃完了後は一度Idleに戻す（重要！）
+        ChangeAttackState(EnemyAttackState.AttackIdle);
     }
 
     private IEnumerator DoEnemyHardAttack()
     {
         Debug.Log("攻撃のコライダーをオン");
         _HardAtk_col.enabled = true;
-
         yield return new WaitForSeconds(0.3f);
-
         _HardAtk_col.enabled = false;
-
-        ChangeAttackState(EnemyAttackState.PreAtkState);
-
+        ChangeAttackState(EnemyAttackState.AttackIdle); // PreAtkStateから変更
     }
     #endregion
 }
