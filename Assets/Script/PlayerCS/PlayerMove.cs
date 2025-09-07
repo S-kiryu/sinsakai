@@ -9,6 +9,8 @@ public class Player : MonoBehaviour
     [SerializeField]
     private float _playerHp = 100;
     private Vector3 _originalScale;
+    [SerializeField]
+    private Collider2D _meHitCol;
 
     //＝＝＝移動系＝＝＝
     [Tooltip("移動スピード")]
@@ -67,7 +69,6 @@ public class Player : MonoBehaviour
     private float _attackDamage;
 
     private Rigidbody2D _rb;
-    private Collider2D _col;
     private Quaternion _originalRotation;
 
     [SerializeField]
@@ -84,14 +85,15 @@ public class Player : MonoBehaviour
     void Start()
     {
         _rb = GetComponent<Rigidbody2D>();
-        _col = GetComponent<Collider2D>();
         anim = GetComponent<Animator>();
         _originalRotation = transform.rotation;
 
         _rb.gravityScale = 3f; // 重力を有効にする
         _rb.freezeRotation = true; // 回転しないように固定
+
         _punchAttackCollider.enabled = false;
         _projectileAttackCollider.enabled = false;
+        _meHitCol.enabled = true;
 
         //元のスケールを保存
         _originalScale = transform.lossyScale;
@@ -169,7 +171,7 @@ public class Player : MonoBehaviour
 
         _rollDirection = _isFacingRight ? Vector2.right : Vector2.left;
 
-        _col.enabled = false; // 無敵時間の表現
+        _meHitCol.enabled = false; // 無敵時間の表現
     }
 
     private void EndRoll()
@@ -177,7 +179,7 @@ public class Player : MonoBehaviour
         _isRolling = false;
         _isMovementLocked = false;
         transform.rotation = _originalRotation;
-        _col.enabled = true;
+        _meHitCol.enabled = true;
 
         // ロール後に速度をリセット
         _rb.linearVelocity = Vector2.zero;

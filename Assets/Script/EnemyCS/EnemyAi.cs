@@ -17,7 +17,6 @@ public class EnemyAi : MonoBehaviour
     private float _detectionRange = 5f;
     private Vector3 _originalScale;
 
-
     //＝＝＝敵のステータス＝＝＝
     [SerializeField]
     private float _enemyHp = 1528.0f;
@@ -429,7 +428,7 @@ public class EnemyAi : MonoBehaviour
         Debug.Log("OnTriggerEnter2D: " + other.name);
         if (_NormalAtk_col.enabled)
         {
-            if (other.CompareTag("Player"))
+            if (other.CompareTag("PlayerHit"))
             {
                 Player player = other.GetComponentInParent<Player>();
                 if (player != null)
