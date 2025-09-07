@@ -328,7 +328,7 @@ public class EnemyAi : MonoBehaviour
     private void HandleAttackState()
     {
         float distance = Vector2.Distance(transform.position, _player_Pos.position);
-        float attackRange = 3.0f; // 2.0fから3.0fに変更
+        float attackRange = 3.0f;
 
         // デバッグ用ログ追加
         Debug.Log($"距離: {distance:F2}, 攻撃状態: {_enemyAtkState}, 移動状態: {_enemyMoveState}");
