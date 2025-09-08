@@ -16,6 +16,7 @@ public class EnemyAi : MonoBehaviour
     [SerializeField]
     private float _detectionRange = 5f;
     private Vector3 _originalScale;
+    private bool _isKnockback = false;
 
     //＝＝＝敵のステータス＝＝＝
     [SerializeField]
@@ -232,7 +233,10 @@ public class EnemyAi : MonoBehaviour
 
     private void Idle()
     {
-
+        if (!_isKnockback)
+        {
+            _rb.linearVelocity = new Vector2(0, _rb.linearVelocity.y);
+        }
     }
 
     private void Walk()
@@ -276,11 +280,14 @@ public class EnemyAi : MonoBehaviour
         float directionX = Mathf.Sign(transform.position.x - attackerPosition.x);
         Vector2 knockbackDir = new Vector2(directionX, 0.5f).normalized;
 
+        // ノックバックフラグをON
+        _isKnockback = true;
+
         // いったん速度リセットしてからノックバック
         _rb.linearVelocity = Vector2.zero;
         _rb.AddForce(knockbackDir * 20f, ForceMode2D.Impulse);
 
-        // 一時的に移動を停止（0.2秒くらい）
+        // 一時的に移動を停止
         StartCoroutine(DisableMovement(0.2f));
 
         if (_enemyHp <= 0)
@@ -291,17 +298,26 @@ public class EnemyAi : MonoBehaviour
 
     private IEnumerator DisableMovement(float duration)
     {
-        // 今の状態を保存しておく（例: Walk や Back など）
-        EnemyMoveState prevState = _enemyMoveState;
-
-        // 強制的に Idle にして、動きを止める
+        ChangeAttackState(EnemyAttackState.AttackIdle);
         ChangeMoveState(EnemyMoveState.Idle);
 
-        // duration 秒だけ待つ（ここでコルーチンが一時停止する）
         yield return new WaitForSeconds(duration);
 
-        // 待ち時間が終わったら、元の状態に戻す
-        ChangeMoveState(prevState);
+        // ノックバックフラグをOFF
+        _isKnockback = false;
+
+        float distance = Vector2.Distance(transform.position, _player_Pos.position);
+
+        if (distance < _detectionRange)
+        {
+            ChangeMoveState(EnemyMoveState.Walk);
+            anim.SetBool("move", true);
+        }
+        else
+        {
+            ChangeMoveState(EnemyMoveState.Idle);
+            anim.SetBool("move", false);
+        }
     }
 
 
