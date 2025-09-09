@@ -273,6 +273,16 @@ public class Player : MonoBehaviour
                     enemy.TakeEnemyDamage(_attackDamage, transform.position);  // 敵のHPを削る
                 }
             }
+
+            if (other.CompareTag("pen"))
+            {
+                Debug.Log("penに攻撃を実行");
+                Pencs pencs = other.GetComponent<Pencs>();
+                if (pencs != null) 
+                {
+                    pencs.TakePenDamage(_attackDamage);
+                }
+            }
         }
     }
     #endregion
