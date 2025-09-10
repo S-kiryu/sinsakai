@@ -325,9 +325,10 @@ public class EnemyAi : MonoBehaviour
     {
         //ヒール
         _enemyHp += _potionHeal;
-        _enemyHp = Mathf.Min(_enemyHp, _enemyMaxHp);
         ChangeMoveState(EnemyMoveState.Walk);
-        Debug.Log(_enemyHp);
+        _enemyHp = Mathf.Min(_enemyHp, _enemyMaxHp); // この行が抜けていた
+
+        Debug.Log("回復完了！回復後HP: " + _enemyHp);
     }
 
     private void Die()
@@ -347,7 +348,7 @@ public class EnemyAi : MonoBehaviour
         float attackRange = 3.0f;
 
         // デバッグ用ログ追加
-        Debug.Log($"距離: {distance:F2}, 攻撃状態: {_enemyAtkState}, 移動状態: {_enemyMoveState}");
+        Debug.Log($"攻撃状態: {_enemyAtkState}, 移動状態: {_enemyMoveState}");
 
         //攻撃のクールタイムの計算
         CoolTime(PriorityType.NormalAtk, _enemyNormalAtk_Time);
@@ -427,6 +428,8 @@ public class EnemyAi : MonoBehaviour
 
     private void Attack()
     {
+        Debug.Log("攻撃開始: 赤色に変更");
+        GetComponent<SpriteRenderer>().color = Color.red;
         Debug.Log("ダメージを代入");
         _enemyFinalDmg = _enemyNormalAtk_Dmg;
         StartCoroutine(DoEnemyNormalAttack());
@@ -465,6 +468,8 @@ public class EnemyAi : MonoBehaviour
         yield return new WaitForSeconds(0.3f);
 
         _NormalAtk_col.enabled = false;
+
+        GetComponent<SpriteRenderer>().color = Color.white;
 
         // 攻撃完了後は一度Idleに戻す（重要！）
         ChangeAttackState(EnemyAttackState.AttackIdle);

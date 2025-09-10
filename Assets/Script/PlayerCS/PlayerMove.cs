@@ -158,14 +158,12 @@ public class Player : MonoBehaviour
         _rollTimer -= Time.deltaTime;
         _rb.linearVelocity = _rollDirection * _rollSpeed; // Rigidbodyで移動させる
 
-        //回避モーションを追加したらここを消す
-        transform.Rotate(0f, 0f, -360f * Time.deltaTime);
-
         if (_rollTimer <= 0f) EndRoll();
     }
 
     private void StartRoll()
     {
+        anim.SetBool("slide", true);
         _isRolling = true;
         _isMovementLocked = true;
         _rollTimer = _rollDuration;
@@ -177,6 +175,7 @@ public class Player : MonoBehaviour
 
     private void EndRoll()
     {
+        anim.SetBool("slide", false);
         _isRolling = false;
         _isMovementLocked = false;
         transform.rotation = _originalRotation;
