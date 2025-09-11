@@ -428,17 +428,30 @@ public class EnemyAi : MonoBehaviour
 
     private void Attack()
     {
-        Debug.Log("攻撃開始: 赤色に変更");
+        //Debug.Log("攻撃開始: 赤色に変更");
+        //GetComponent<SpriteRenderer>().color = Color.red;
+        //Debug.Log("ダメージを代入");
+        //_enemyFinalDmg = _enemyNormalAtk_Dmg;
+        //StartCoroutine(DoEnemyNormalAttack());
+        Debug.Log("通常攻撃開始");
         GetComponent<SpriteRenderer>().color = Color.red;
-        Debug.Log("ダメージを代入");
+
+        // ダメージを設定
         _enemyFinalDmg = _enemyNormalAtk_Dmg;
-        StartCoroutine(DoEnemyNormalAttack());
+
+        // アニメーションをトリガー
+        anim.SetTrigger("NormalAttack");
     }
 
     private void HardAttack()
     {
+        Debug.Log("強攻撃開始");
+
+        // ダメージを設定
         _enemyFinalDmg = _enemyHardAtk_Dmg;
-        StartCoroutine(DoEnemyHardAttack());
+
+        // アニメーションをトリガー
+        anim.SetTrigger("HardAttack");
     }
 
 
@@ -460,28 +473,67 @@ public class EnemyAi : MonoBehaviour
         }
     }
 
-    private IEnumerator DoEnemyNormalAttack()
+    //＝＝＝アニメーションイベント用メソッド＝＝＝
+    #region Animation Events
+
+    // 攻撃判定を有効化（アニメーションの攻撃タイミングで呼ばれる）
+    public void EnableAttackCollider()
     {
-        Debug.Log("攻撃のコライダーをオン");
-        _NormalAtk_col.enabled = true;
+        Debug.Log("攻撃判定ON（アニメーションイベント）");
 
-        yield return new WaitForSeconds(0.3f);
+        // 現在の攻撃タイプに応じてコライダーを有効化
+        if (_enemyAtkState == EnemyAttackState.Attack)
+        {
+            _NormalAtk_col.enabled = true;
+        }
+        else if (_enemyAtkState == EnemyAttackState.HardAttack)
+        {
+            _HardAtk_col.enabled = true;
+        }
+    }
 
+    // 攻撃判定を無効化
+    public void DisableAttackCollider()
+    {
+        Debug.Log("攻撃判定OFF（アニメーションイベント）");
         _NormalAtk_col.enabled = false;
+        _HardAtk_col.enabled = false;
+    }
 
+    // 攻撃アニメーション終了時に呼ばれる
+    public void OnAttackAnimationEnd()
+    {
+        Debug.Log("攻撃アニメーション終了");
         GetComponent<SpriteRenderer>().color = Color.white;
 
-        // 攻撃完了後は一度Idleに戻す（重要！）
+        // 攻撃状態をリセット
         ChangeAttackState(EnemyAttackState.AttackIdle);
     }
 
-    private IEnumerator DoEnemyHardAttack()
-    {
-        Debug.Log("攻撃のコライダーをオン");
-        _HardAtk_col.enabled = true;
-        yield return new WaitForSeconds(0.3f);
-        _HardAtk_col.enabled = false;
-        ChangeAttackState(EnemyAttackState.AttackIdle); // PreAtkStateから変更
-    }
+    #endregion
+
+    //private IEnumerator DoEnemyNormalAttack()
+    //{
+    //    Debug.Log("攻撃のコライダーをオン");
+    //    _NormalAtk_col.enabled = true;
+
+    //    yield return new WaitForSeconds(0.3f);
+
+    //    _NormalAtk_col.enabled = false;
+
+    //    GetComponent<SpriteRenderer>().color = Color.white;
+
+    //    // 攻撃完了後は一度Idleに戻す（重要！）
+    //    ChangeAttackState(EnemyAttackState.AttackIdle);
+    //}
+
+    //private IEnumerator DoEnemyHardAttack()
+    //{
+    //    Debug.Log("攻撃のコライダーをオン");
+    //    _HardAtk_col.enabled = true;
+    //    yield return new WaitForSeconds(0.3f);
+    //    _HardAtk_col.enabled = false;
+    //    ChangeAttackState(EnemyAttackState.AttackIdle); // PreAtkStateから変更
+    //}
     #endregion
 }
