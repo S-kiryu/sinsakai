@@ -64,6 +64,7 @@ public class EnemyAi : MonoBehaviour
 
     private float _enemyFinalDmg;
     private bool _enemyAtkStateEnter = true;
+    private bool _isAttackCooling = false;
     //アニメーション
     private Animator anim = null;
 
@@ -174,10 +175,20 @@ public class EnemyAi : MonoBehaviour
 
     void Update()
     {
-        float distance = Vector2.Distance(transform.position, _player_Pos.position);
+        if (_player_Pos != null)
+        {
+            float distance = Vector2.Distance(transform.position, _player_Pos.position);
+            // 距離判定処理
+            HandleMoveState(distance);
+            HandleAttackState();
+        }
+        else
+        {
+            // プレイヤーが消えたときの処理（敵をIdleにするとか）
+            ChangeMoveState(EnemyMoveState.Idle);
+            anim.SetBool("move", false);
+        }
 
-        HandleMoveState(distance);
-        HandleAttackState();
     }
 
     //＝＝＝移動関連＝＝＝
@@ -314,17 +325,19 @@ public class EnemyAi : MonoBehaviour
         // ノックバックフラグをOFF
         _isKnockback = false;
 
-        float distance = Vector2.Distance(transform.position, _player_Pos.position);
-
-        if (distance < _detectionRange)
+        if (_player_Pos != null)
         {
-            ChangeMoveState(EnemyMoveState.Walk);
-            anim.SetBool("move", true);
-        }
-        else
-        {
-            ChangeMoveState(EnemyMoveState.Idle);
-            anim.SetBool("move", false);
+            float distance = Vector2.Distance(transform.position, _player_Pos.position);
+            if (distance < _detectionRange)
+            {
+                ChangeMoveState(EnemyMoveState.Walk);
+                anim.SetBool("move", true);
+            }
+            else
+            {
+                ChangeMoveState(EnemyMoveState.Idle);
+                anim.SetBool("move", false);
+            }
         }
     }
 
@@ -349,6 +362,12 @@ public class EnemyAi : MonoBehaviour
     //＝＝＝攻撃関連＝＝＝
     #region
 
+    private IEnumerator AttackCooldown(float time)
+    {
+        _isAttackCooling = true;
+        yield return new WaitForSeconds(time);
+        _isAttackCooling = false;
+    }
 
     private void HandleAttackState()
     {
@@ -363,9 +382,9 @@ public class EnemyAi : MonoBehaviour
 
         switch (_enemyAtkState)
         {
+            // プレイヤーが攻撃範囲内にいて、移動状態がWalkの時のみ攻撃準備
             case EnemyAttackState.AttackIdle:
-                // プレイヤーが攻撃範囲内にいて、移動状態がWalkの時のみ攻撃準備
-                if (distance <= attackRange && _enemyMoveState == EnemyMoveState.Walk)
+                if (!_isAttackCooling && distance <= attackRange && _enemyMoveState == EnemyMoveState.Walk)
                 {
                     ChangeAttackState(EnemyAttackState.PreAtkState);
                 }
@@ -407,14 +426,17 @@ public class EnemyAi : MonoBehaviour
 
         if (_enemyAtkState == EnemyAttackState.PreAtkState)
         {
-            float distance = Vector2.Distance(transform.position, _player_Pos.position);
-            if (distance <= 3.0f) // 2.0fから3.0fに変更
+            if (_player_Pos != null)
             {
-                ChangeAttackState(EnemyAttackState.HardAttack);
-            }
-            else
-            {
-                ChangeAttackState(EnemyAttackState.AttackIdle);
+                float distance = Vector2.Distance(transform.position, _player_Pos.position);
+                if (distance <= 3.0f) // 2.0fから3.0fに変更
+                {
+                    ChangeAttackState(EnemyAttackState.HardAttack);
+                }
+                else
+                {
+                    ChangeAttackState(EnemyAttackState.AttackIdle);
+                }
             }
         }
     }
@@ -532,18 +554,24 @@ public class EnemyAi : MonoBehaviour
         // 攻撃状態をリセット
         ChangeAttackState(EnemyAttackState.AttackIdle);
 
+        StartCoroutine(AttackCooldown(1.5f));
+
         // 追跡再開
-        float distance = Vector2.Distance(transform.position, _player_Pos.position);
-        if (distance < _detectionRange)
+        if (_player_Pos != null)
         {
-            ChangeMoveState(EnemyMoveState.Walk);
-            anim.SetBool("move", true);
+            float distance = Vector2.Distance(transform.position, _player_Pos.position);
+            if (distance < _detectionRange)
+            {
+                ChangeMoveState(EnemyMoveState.Walk);
+                anim.SetBool("move", true);
+            }
+            else
+            {
+                ChangeMoveState(EnemyMoveState.Idle);
+                anim.SetBool("move", false);
+            }
         }
-        else
-        {
-            ChangeMoveState(EnemyMoveState.Idle);
-            anim.SetBool("move", false);
-        }
+
     }
 
     #endregion
