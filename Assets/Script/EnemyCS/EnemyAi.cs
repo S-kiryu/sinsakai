@@ -184,13 +184,21 @@ public class EnemyAi : MonoBehaviour
     #region
     private void HandleMoveState(float distance)
     {
+        // 攻撃中は強制的に Idle にする
+        if (_enemyAtkState == EnemyAttackState.Attack ||
+            _enemyAtkState == EnemyAttackState.HardAttack ||
+            _enemyAtkState == EnemyAttackState.PreAtkState)
+        {
+            Idle();
+            return; // ここで処理を止める
+        }
+
         switch (_enemyMoveState)
         {
             case EnemyMoveState.Idle:
                 Idle();
-                if (distance < _detectionRange && _enemyAtkState != EnemyAttackState.Attack)
+                if (distance < _detectionRange)
                 {
-                    Debug.Log("プレイヤーを発見！");
                     ChangeMoveState(EnemyMoveState.Walk);
                     anim.SetBool("move", true);
                 }
@@ -402,7 +410,7 @@ public class EnemyAi : MonoBehaviour
             float distance = Vector2.Distance(transform.position, _player_Pos.position);
             if (distance <= 3.0f) // 2.0fから3.0fに変更
             {
-                ChangeAttackState(EnemyAttackState.Attack);
+                ChangeAttackState(EnemyAttackState.HardAttack);
             }
             else
             {
@@ -450,15 +458,17 @@ public class EnemyAi : MonoBehaviour
         // ダメージを設定
         _enemyFinalDmg = _enemyHardAtk_Dmg;
 
+        //アニメーションを再生
+        anim.SetBool("hardAtk", true);
         // アニメーションをトリガー
-        anim.SetTrigger("HardAttack");
+        anim.SetTrigger("hardAtk");
     }
 
 
     private void OnTriggerEnter2D(Collider2D other)
     {
         Debug.Log("OnTriggerEnter2D: " + other.name);
-        if (_NormalAtk_col.enabled)
+        if (_NormalAtk_col.enabled|| _HardAtk_col.enabled)
         {
             if (other.CompareTag("PlayerHit"))
             {
@@ -477,20 +487,33 @@ public class EnemyAi : MonoBehaviour
     #region Animation Events
 
     // 攻撃判定を有効化（アニメーションの攻撃タイミングで呼ばれる）
-    public void EnableAttackCollider()
+    #region
+    // 通常攻撃用
+    public void EnableNormalAttackCollider()
     {
-        Debug.Log("攻撃判定ON（アニメーションイベント）");
-
-        // 現在の攻撃タイプに応じてコライダーを有効化
-        if (_enemyAtkState == EnemyAttackState.Attack)
-        {
-            _NormalAtk_col.enabled = true;
-        }
-        else if (_enemyAtkState == EnemyAttackState.HardAttack)
-        {
-            _HardAtk_col.enabled = true;
-        }
+        Debug.Log("通常攻撃判定ON");
+        _NormalAtk_col.enabled = true;
     }
+
+    public void DisableNormalAttackCollider()
+    {
+        Debug.Log("通常攻撃判定OFF");
+        _NormalAtk_col.enabled = false;
+    }
+
+    // 強攻撃用
+    public void EnableHardAttackCollider()
+    {
+        Debug.Log("強攻撃判定ON");
+        _HardAtk_col.enabled = true;
+    }
+
+    public void DisableHardAttackCollider()
+    {
+        Debug.Log("強攻撃判定OFF");
+        _HardAtk_col.enabled = false;
+    }
+    #endregion
 
     // 攻撃判定を無効化
     public void DisableAttackCollider()
@@ -508,6 +531,19 @@ public class EnemyAi : MonoBehaviour
 
         // 攻撃状態をリセット
         ChangeAttackState(EnemyAttackState.AttackIdle);
+
+        // 追跡再開
+        float distance = Vector2.Distance(transform.position, _player_Pos.position);
+        if (distance < _detectionRange)
+        {
+            ChangeMoveState(EnemyMoveState.Walk);
+            anim.SetBool("move", true);
+        }
+        else
+        {
+            ChangeMoveState(EnemyMoveState.Idle);
+            anim.SetBool("move", false);
+        }
     }
 
     #endregion
