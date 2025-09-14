@@ -49,7 +49,7 @@ public class EnemyAi : MonoBehaviour
     [Tooltip("後退スピード")]
     [SerializeField]
     private float _backSpeed = 5f;
-    private bool _isMovingBack = true;
+    private bool _isMovingBack = false; // 修正: trueからfalseに変更
 
     private Transform _player_Pos;
     private Rigidbody2D _rb;
@@ -174,7 +174,6 @@ public class EnemyAi : MonoBehaviour
     {
         _enemyAtkState = newAttackState;
         _enemyAtkStateEnter = true;
-
     }
 
     void Start()
@@ -204,7 +203,6 @@ public class EnemyAi : MonoBehaviour
             ChangeMoveState(EnemyMoveState.Idle);
             anim.SetBool("move", false);
         }
-
     }
 
     //＝＝＝移動関連＝＝＝
@@ -232,7 +230,6 @@ public class EnemyAi : MonoBehaviour
                 }
                 break;
 
-
             case EnemyMoveState.Walk:
                 // 攻撃範囲外 → 近づく
                 if (distance > _attackRange)
@@ -252,6 +249,7 @@ public class EnemyAi : MonoBehaviour
                     Idle();
                 }
 
+                // 修正: EnemyBack()をWalk状態の時のみ呼び出し
                 EnemyBack();
 
                 // HPが減ったら回復
@@ -266,25 +264,30 @@ public class EnemyAi : MonoBehaviour
             case EnemyMoveState.Back:
                 if (_enemyMoveStateEnter)
                 {
-                    _enemyMoveStateEnter = false; // 👈 フラグをリセットしないと無限判定になる
+                    _enemyMoveStateEnter = false;
+                    _isMovingBack = true; // 修正: バック中フラグを追加
                     StartCoroutine(BackDuration(1.0f)); // 1秒だけ後退
                 }
                 break;
         }
-
     }
 
     private IEnumerator BackDuration(float duration)
     {
+        Debug.Log("後退開始");
+
         // 後退する
         _rb.linearVelocity = new Vector2(-Mathf.Sign(transform.localScale.x) * _backSpeed, 0);
 
         yield return new WaitForSeconds(duration);
 
-        // 後退後に攻撃抽選
-        if (!_isAttackCooling)
+        _isMovingBack = false; // 修正: バック終了
+        Debug.Log("後退終了");
+
+        // 後退後にワープ攻撃抽選 - 修正: 条件を簡略化
+        if (!_isAttackCooling && spearPrefab != null) // 修正: spearPrefabがnullでないかチェック
         {
-            float warpChance = 1f;
+            float warpChance = 0.7f; // 修正: 70%の確率に変更
             if (Random.value < warpChance)
             {
                 Debug.Log("後退後にワープ攻撃！");
@@ -293,7 +296,8 @@ public class EnemyAi : MonoBehaviour
             }
         }
 
-        // 攻撃しない場合はWalkに戻る
+        // ワープ攻撃しない場合はWalkに戻る
+        Debug.Log("ワープ攻撃なし、Walk状態に戻る");
         ChangeMoveState(EnemyMoveState.Walk);
         anim.SetBool("move", true);
     }
@@ -326,12 +330,15 @@ public class EnemyAi : MonoBehaviour
 
     private void EnemyBack()
     {
+        // 修正: バック中やAttackCooling中は判定しない
+        if (_isMovingBack || _isAttackCooling) return;
+
         _backCheckTimer += Time.deltaTime;
         if (_backCheckTimer >= _backCheckInterval)
         {
             _backCheckTimer = 0f;
 
-            if (_enemyMoveState == EnemyMoveState.Walk && !_isAttackCooling)
+            if (_enemyMoveState == EnemyMoveState.Walk)
             {
                 if (Random.value < _backChance)
                 {
@@ -340,10 +347,7 @@ public class EnemyAi : MonoBehaviour
                 }
             }
         }
-        else 
-        {
-            ChangeMoveState(EnemyMoveState.Walk);
-        }
+        // 修正: else文を削除（常にWalk状態に戻すのは間違い）
     }
     #endregion
 
@@ -405,7 +409,6 @@ public class EnemyAi : MonoBehaviour
         }
     }
 
-
     private void Heal()
     {
         //ヒール
@@ -431,6 +434,7 @@ public class EnemyAi : MonoBehaviour
         _isAttackCooling = true;
         yield return new WaitForSeconds(time);
         _isAttackCooling = false;
+        Debug.Log("攻撃クールダウン終了"); // 修正: デバッグログ追加
     }
 
     private void HandleAttackState()
@@ -439,16 +443,6 @@ public class EnemyAi : MonoBehaviour
 
         // 攻撃クールタイム進行
         CoolTime(PriorityType.NormalAtk, _enemyNormalAtk_Time);
-
-        // WarpAttackは後退時に判定する
-        if (_enemyMoveState == EnemyMoveState.Back && !_isAttackCooling)
-        {
-            if (prioritys.GetPriority(PriorityType.NormalAtk).value >= 1f) // クール完了
-            {
-                ChangeAttackState(EnemyAttackState.WarpAttack);
-                return;
-            }
-        }
 
         switch (_enemyAtkState)
         {
@@ -502,7 +496,7 @@ public class EnemyAi : MonoBehaviour
 
         //if (rand < hardAttackChance)
         //{
-            ChangeAttackState(EnemyAttackState.HardAttack);
+        ChangeAttackState(EnemyAttackState.HardAttack);
         //}
         //else
         //{
@@ -569,7 +563,6 @@ public class EnemyAi : MonoBehaviour
         anim.SetBool("hardAtk", true);
     }
 
-
     public void WarpAttack()
     {
         Debug.Log("ワープ攻撃開始");
@@ -577,11 +570,10 @@ public class EnemyAi : MonoBehaviour
         anim.SetTrigger("warpAtk_T");
     }
 
-
     private void OnTriggerEnter2D(Collider2D other)
     {
         Debug.Log("OnTriggerEnter2D: " + other.name);
-        if (_NormalAtk_col.enabled|| _HardAtk_col.enabled)
+        if (_NormalAtk_col.enabled || _HardAtk_col.enabled)
         {
             if (other.CompareTag("PlayerHit"))
             {
@@ -631,6 +623,13 @@ public class EnemyAi : MonoBehaviour
     {
         Debug.Log("ワープ攻撃だよ");
         if (_player_Pos == null) return;
+
+        // 修正: spearPrefabのnullチェック追加
+        if (spearPrefab == null)
+        {
+            Debug.LogWarning("spearPrefabが設定されていません！");
+            return;
+        }
 
         float playerDir = _player_Pos.localScale.x > 0 ? 1 : -1;
 
@@ -697,7 +696,7 @@ public class EnemyAi : MonoBehaviour
         {
             // 爆発エフェクトを出したい場合
             // Instantiate(explosionPrefab, spear.transform.position, Quaternion.identity);
-
+            Destroy(spear); // 修正: 槍の破棄処理を追加
         }
     }
     #endregion
