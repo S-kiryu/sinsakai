@@ -38,8 +38,11 @@ public class EnemyAi : MonoBehaviour
     private float _potionHeal = 1000.0f;
     private float _moveSpeed = 2f;
 
+    [SerializeField]
     private float _attackRange = 2.5f; // 攻撃したい距離
+    [SerializeField]
     private float _safeRange = 1.5f;   // 近すぎると後退する距離
+    [SerializeField]
     private float _chaseRange = 6.0f;  // 追いかける距離
 
     //＝＝＝バックの動作＝＝＝
@@ -53,6 +56,10 @@ public class EnemyAi : MonoBehaviour
     private EnemyMoveState _enemyMoveState;
     private EnemyAttackState _enemyAtkState;
     private bool _enemyMoveStateEnter = true;
+
+    private float _backCheckInterval = 0.5f;  // 判定間隔（秒）
+    private float _backCheckTimer = 0f;       // タイマー
+    private float _backChance = 0.1f;
 
     //＝＝＝敵の攻撃関連＝＝＝
     [SerializeField]
@@ -245,6 +252,8 @@ public class EnemyAi : MonoBehaviour
                     Idle();
                 }
 
+                EnemyBack();
+
                 // HPが減ったら回復
                 if (_enemyHp <= _enemyHealValue && _potion > 0)
                 {
@@ -255,11 +264,39 @@ public class EnemyAi : MonoBehaviour
                 break;
 
             case EnemyMoveState.Back:
-                EnemyBack();
+                if (_enemyMoveStateEnter)
+                {
+                    _enemyMoveStateEnter = false; // 👈 フラグをリセットしないと無限判定になる
+                    StartCoroutine(BackDuration(1.0f)); // 1秒だけ後退
+                }
                 break;
         }
+
     }
 
+    private IEnumerator BackDuration(float duration)
+    {
+        // 後退する
+        _rb.linearVelocity = new Vector2(-Mathf.Sign(transform.localScale.x) * _backSpeed, 0);
+
+        yield return new WaitForSeconds(duration);
+
+        // 後退後に攻撃抽選
+        if (!_isAttackCooling)
+        {
+            float warpChance = 1f;
+            if (Random.value < warpChance)
+            {
+                Debug.Log("後退後にワープ攻撃！");
+                ChangeAttackState(EnemyAttackState.WarpAttack);
+                yield break; // 攻撃するのでここで終了
+            }
+        }
+
+        // 攻撃しない場合はWalkに戻る
+        ChangeMoveState(EnemyMoveState.Walk);
+        anim.SetBool("move", true);
+    }
 
     private void Idle()
     {
@@ -289,8 +326,24 @@ public class EnemyAi : MonoBehaviour
 
     private void EnemyBack()
     {
-        Vector2 direction = (transform.position - _player_Pos.position).normalized;
-        _rb.linearVelocity = new Vector2(direction.x * _backSpeed, _rb.linearVelocity.y);
+        _backCheckTimer += Time.deltaTime;
+        if (_backCheckTimer >= _backCheckInterval)
+        {
+            _backCheckTimer = 0f;
+
+            if (_enemyMoveState == EnemyMoveState.Walk && !_isAttackCooling)
+            {
+                if (Random.value < _backChance)
+                {
+                    Debug.Log("ランダム判定で後退！");
+                    ChangeMoveState(EnemyMoveState.Back);
+                }
+            }
+        }
+        else 
+        {
+            ChangeMoveState(EnemyMoveState.Walk);
+        }
     }
     #endregion
 
@@ -447,14 +500,14 @@ public class EnemyAi : MonoBehaviour
         float rand = Random.value; // 0.0〜1.0
         float hardAttackChance = 0.3f; // 30%で強攻撃
 
-        if (rand < hardAttackChance)
-        {
+        //if (rand < hardAttackChance)
+        //{
             ChangeAttackState(EnemyAttackState.HardAttack);
-        }
-        else
-        {
-            ChangeAttackState(EnemyAttackState.Attack);
-        }
+        //}
+        //else
+        //{
+        //    ChangeAttackState(EnemyAttackState.Attack);
+        //}
     }
 
     // 攻撃準備のための遅延コルーチン
@@ -520,7 +573,8 @@ public class EnemyAi : MonoBehaviour
     public void WarpAttack()
     {
         Debug.Log("ワープ攻撃開始");
-        anim.SetBool("warpAtk",true);
+        anim.SetBool("warpAtk", true);
+        anim.SetTrigger("warpAtk_T");
     }
 
 
@@ -575,6 +629,7 @@ public class EnemyAi : MonoBehaviour
 
     public void EnableWarpAttackCollider()
     {
+        Debug.Log("ワープ攻撃だよ");
         if (_player_Pos == null) return;
 
         float playerDir = _player_Pos.localScale.x > 0 ? 1 : -1;
