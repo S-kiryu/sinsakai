@@ -696,7 +696,7 @@ public class EnemyAi : MonoBehaviour
         {
             // 爆発エフェクトを出したい場合
             // Instantiate(explosionPrefab, spear.transform.position, Quaternion.identity);
-            Destroy(spear); // 修正: 槍の破棄処理を追加
+            //Destroy(spear); // 修正: 槍の破棄処理を追加
         }
     }
     #endregion
