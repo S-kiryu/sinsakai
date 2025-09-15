@@ -42,8 +42,6 @@ public class EnemyAi : MonoBehaviour
     private float _attackRange = 2.5f; // 攻撃したい距離
     [SerializeField]
     private float _safeRange = 1.5f;   // 近すぎると後退する距離
-    [SerializeField]
-    private float _chaseRange = 6.0f;  // 追いかける距離
 
     //＝＝＝バックの動作＝＝＝
     [Tooltip("後退スピード")]
@@ -360,27 +358,38 @@ public class EnemyAi : MonoBehaviour
 
     public void TakeEnemyDamage(float damage, Vector2 attackerPosition)
     {
+        // HP減少
         _enemyHp -= damage;
         Debug.Log("敵の残りHP: " + _enemyHp);
+
+        // ダメージ色変更（Coroutineで戻す）
+        StartCoroutine(DamageFlash());
 
         // ノックバック処理
         float directionX = Mathf.Sign(transform.position.x - attackerPosition.x);
         Vector2 knockbackDir = new Vector2(directionX, 0.5f).normalized;
 
-        // ノックバックフラグをON
         _isKnockback = true;
-
-        // いったん速度リセットしてからノックバック
         _rb.linearVelocity = Vector2.zero;
         _rb.AddForce(knockbackDir * 20f, ForceMode2D.Impulse);
 
         // 一時的に移動を停止
         StartCoroutine(DisableMovement(0.2f));
 
+        // HPが0以下なら死亡処理
         if (_enemyHp <= 0)
         {
             Die();
         }
+    }
+
+
+    private IEnumerator DamageFlash()
+    {
+        var sr = GetComponent<SpriteRenderer>();
+        sr.color = Color.red;
+        yield return new WaitForSeconds(0.1f); // 赤くなる時間
+        sr.color = Color.white;
     }
 
     private IEnumerator DisableMovement(float duration)
@@ -492,7 +501,6 @@ public class EnemyAi : MonoBehaviour
     private void DecideAttack()
     {
         float rand = Random.value; // 0.0〜1.0
-        float hardAttackChance = 0.3f; // 30%で強攻撃
 
         //if (rand < hardAttackChance)
         //{
@@ -544,7 +552,6 @@ public class EnemyAi : MonoBehaviour
     private void Attack()
     {
         Debug.Log("通常攻撃開始");
-        //GetComponent<SpriteRenderer>().color = Color.red;
         // ダメージを設定
         _enemyFinalDmg = _enemyNormalAtk_Dmg;
 

@@ -126,7 +126,18 @@ public class Player : MonoBehaviour
     private void PlayerDie()
     {
         Debug.Log(_sin);
-        Destroy(gameObject);
+
+
+        // GameOverUIを表示
+        GameOverUIManager uiManager = Object.FindFirstObjectByType<GameOverUIManager>();
+
+        if (uiManager != null)
+        {
+            uiManager.ShowGameOver();
+        }
+
+        // プレイヤーを操作不能にする
+        gameObject.SetActive(false);
     }
     #endregion
 
