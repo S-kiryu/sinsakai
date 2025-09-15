@@ -1474,7 +1474,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: f89bd8837df40ae4aaec0394c7fdb33a, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _detectionRange: 10
+  _detectionRange: 30
   _enemyHp: 1528
   _enemyHealValue: 509
   _potion: 1
@@ -1488,7 +1488,7 @@ MonoBehaviour:
   _enemyNormalAtk_Time: 1
   _NormalAtk_col: {fileID: 928936654}
   _HardAtk_col: {fileID: 170378624}
-  spearPrefab: {fileID: 8493715393500549781, guid: 11d14f6af4d29b34f83e01c1c78f198f, type: 3}
+  spearPrefab: {fileID: 8494499491081148636, guid: 8042c5d7352e9da4cb673d21dab6719f, type: 3}
   spearOffset: 1.5
   spearLifetime: 1
 --- !u!95 &1446838082
