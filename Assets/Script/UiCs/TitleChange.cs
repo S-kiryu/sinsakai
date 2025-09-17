@@ -27,7 +27,7 @@ public class DoorWarp : MonoBehaviour
 
     private void Update()
     {
-        if (_isPlayerInDoor && !_changeStage && Input.GetKeyDown(KeyCode.W))
+        if (_isPlayerInDoor && !_changeStage && Input.GetKeyDown(KeyCode.C))
         {
             _changeStage = true; // ˆê“x‚¾‚¯‘JˆÚ‚³‚¹‚é
             SceneManager.LoadScene(nextSceneName);

@@ -143,6 +143,7 @@ public class Player : MonoBehaviour
 
     //＝＝＝移動に関する動き＝＝＝
     #region
+    //＝＝＝移動に関する動き＝＝＝
     private void HandleMovement()
     {
         if (_isMovementLocked || _isRolling) return;
@@ -156,7 +157,9 @@ public class Player : MonoBehaviour
         if (moveX > 0 && !_isFacingRight) Flip(true);
         else if (moveX < 0 && _isFacingRight) Flip(false);
 
-        if (Input.GetKeyDown(_rollKey) && !_isRolling) StartRoll();
+        // ジャンプ中は回避できないようにする
+        if (Input.GetKeyDown(_rollKey) && !_isRolling && _isGrounded)
+            StartRoll();
     }
     #endregion
 
@@ -221,26 +224,27 @@ public class Player : MonoBehaviour
 
     //＝＝＝攻撃に関する動き＝＝＝
     #region
+    //＝＝＝攻撃に関する動き＝＝＝
     private void HandleAttack()
     {
+        // ジャンプ中は攻撃できないようにする
+        if (!_isGrounded || _isRolling) return;
+
         if (Input.GetKeyDown(_punchAttackKey))
         {
             Debug.Log("通常攻撃！");
             _attackDamage = _punchDmg;
             StartCoroutine(DoPunchAttack());
-            // アニメーションや攻撃判定呼び出し
         }
 
-        if (Input.GetKeyDown(_projectileKey)&& _projectileAttackCollider.enabled == false)
+        if (Input.GetKeyDown(_projectileKey) && !_projectileAttackCollider.enabled)
         {
-            
             Debug.Log("強攻撃！");
             _attackDamage = _projectileDmg;
             StartCoroutine(DoProjectileAttack());
-            // 強攻撃判定呼び出し
-            
         }
     }
+
 
     //攻撃の当たり判定
     private IEnumerator DoPunchAttack()
