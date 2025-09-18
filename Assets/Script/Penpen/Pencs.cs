@@ -1,3 +1,4 @@
+using System.Collections;
 using UnityEngine;
 
 public class Pencs : MonoBehaviour
@@ -7,6 +8,7 @@ public class Pencs : MonoBehaviour
     public void TakePenDamage(float damage)
     {
         _penHp -= damage;
+        DamageFlash();
         Debug.Log("Pen‚Ìc‚èHP: " + _penHp);
         if (_penHp <= 0)
         {
@@ -16,6 +18,14 @@ public class Pencs : MonoBehaviour
     private void PenDie()
     {
         Destroy(gameObject);
+    }
+
+    private IEnumerator DamageFlash()
+    {
+        var sr = GetComponent<SpriteRenderer>();
+        sr.color = Color.red;
+        yield return new WaitForSeconds(0.1f); // Ô‚­‚È‚éŠÔ
+        sr.color = Color.white;
     }
 
 }

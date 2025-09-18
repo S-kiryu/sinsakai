@@ -481,8 +481,8 @@ MonoBehaviour:
   interactionMessage: Press E to talk
   uiOffset: {x: 0, y: 2, z: 0}
   lines:
-  - konokabotyahanisemonoda
-  - taberarenaiyo
+  - "\u3053\u306E\u304B\u307C\u3061\u3083\u306F\u507D\u7269\u3060"
+  - "\u98DF\u3079\u3089\u308C\u306A\u3044\u3088"
   interactionKey: 101
   nextLineKey: 9
   closeDialogueKey: 27
@@ -6137,8 +6137,8 @@ MonoBehaviour:
   interactionMessage: Press E to talk
   uiOffset: {x: 0, y: 2, z: 0}
   lines:
-  - kabotaygatabetaina
-  - sokonokyoukainiarukigasuru
+  - "\u304B\u307C\u3061\u3083\u304C\u98DF\u3079\u305F\u3044\u306A"
+  - "\u305D\u3053\u306E\u6559\u4F1A\u306B\u3042\u308B\u304D\u304C\u3059\u308B\u306A\u30FC"
   interactionKey: 101
   nextLineKey: 9
   closeDialogueKey: 27
@@ -6770,8 +6770,8 @@ MonoBehaviour:
       m_Calls: []
   m_text: 
   m_isRightToLeft: 0
-  m_fontAsset: {fileID: 11400000, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
-  m_sharedMaterial: {fileID: 2180264, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
+  m_fontAsset: {fileID: 11400000, guid: 943cdc6769419964299ed3e1a0e7b0fc, type: 2}
+  m_sharedMaterial: {fileID: 968092262981488467, guid: 943cdc6769419964299ed3e1a0e7b0fc, type: 2}
   m_fontSharedMaterials: []
   m_fontMaterial: {fileID: 0}
   m_fontMaterials: []
@@ -7342,8 +7342,8 @@ MonoBehaviour:
       m_Calls: []
   m_text: New Text
   m_isRightToLeft: 0
-  m_fontAsset: {fileID: 11400000, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
-  m_sharedMaterial: {fileID: 2180264, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
+  m_fontAsset: {fileID: 11400000, guid: 3a2dc75b422f97b4e93c1af3b943a328, type: 2}
+  m_sharedMaterial: {fileID: 3757219806119728358, guid: 3a2dc75b422f97b4e93c1af3b943a328, type: 2}
   m_fontSharedMaterials: []
   m_fontMaterial: {fileID: 0}
   m_fontMaterials: []
@@ -8387,8 +8387,8 @@ MonoBehaviour:
       m_Calls: []
   m_text: 
   m_isRightToLeft: 0
-  m_fontAsset: {fileID: 11400000, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
-  m_sharedMaterial: {fileID: 2180264, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
+  m_fontAsset: {fileID: 11400000, guid: 943cdc6769419964299ed3e1a0e7b0fc, type: 2}
+  m_sharedMaterial: {fileID: 968092262981488467, guid: 943cdc6769419964299ed3e1a0e7b0fc, type: 2}
   m_fontSharedMaterials: []
   m_fontMaterial: {fileID: 0}
   m_fontMaterials: []
