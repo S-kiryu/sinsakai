@@ -13,40 +13,32 @@ public class EnemyAi : MonoBehaviour
     //＝＝＝敵の情報＝＝＝
     [Tooltip("プレイヤーを検知する距離")]
     [Header("プレイヤー感知距離")]
-    [SerializeField]
-    private float _detectionRange = 5f;
+    [SerializeField]private float _detectionRange = 5f;
     private Vector3 _originalScale;
     private bool _isKnockback = false;
 
     //＝＝＝敵のステータス＝＝＝
-    [SerializeField]
-    private float _enemyHp = 1528.0f;
+    [SerializeField]private float _enemyHp = 1528.0f;
     private float _enemyMaxHp;
 
     [Tooltip("敵が回復を行う値")]
     [Header("敵が回復を行う値")]
-    [SerializeField]
-    private float _enemyHealValue = 509.0f;
+    [SerializeField]private float _enemyHealValue = 509.0f;
 
     [Header("回復できる数")]
-    [SerializeField]
-    private int _potion = 1;
+    [SerializeField]private int _potion = 1;
 
     [Tooltip("回復値")]
     [Header("回復値")]
-    [SerializeField]
-    private float _potionHeal = 1000.0f;
+    [SerializeField]private float _potionHeal = 1000.0f;
     private float _moveSpeed = 2f;
 
-    [SerializeField]
-    private float _attackRange = 2.5f; // 攻撃したい距離
-    [SerializeField]
-    private float _safeRange = 1.5f;   // 近すぎると後退する距離
+    [SerializeField]private float _attackRange = 2.5f; // 攻撃したい距離
+    [SerializeField]private float _safeRange = 1.5f;   // 近すぎると後退する距離
 
     //＝＝＝バックの動作＝＝＝
     [Tooltip("後退スピード")]
-    [SerializeField]
-    private float _backSpeed = 5f;
+    [SerializeField]private float _backSpeed = 5f;
     private bool _isMovingBack = false; // 修正: trueからfalseに変更
 
     private Transform _player_Pos;
@@ -60,20 +52,32 @@ public class EnemyAi : MonoBehaviour
     private float _backChance = 0.1f;
 
     //＝＝＝敵の攻撃関連＝＝＝
-    [SerializeField]
-    private float _enemyNormalAtk_Dmg = 10;
-    [SerializeField]
-    private float _enemyHardAtk_Dmg = 20;
-    [SerializeField]
-    private float _enemyNormalAtk_Time = 1f;
-    [SerializeField]
-    private Collider2D _NormalAtk_col;
-    [SerializeField]
-    private Collider2D _HardAtk_col;
+    [SerializeField]private float _enemyNormalAtk_Dmg = 10;
+    [SerializeField]private float _enemyHardAtk_Dmg = 20;
+    [SerializeField]private float _enemyNormalAtk_Time = 1f;
+    [SerializeField]private Collider2D _NormalAtk_col;
+    [SerializeField] private Collider2D _HardAtk_col;
 
     private float _enemyFinalDmg;
     private bool _enemyAtkStateEnter = true;
     private bool _isAttackCooling = false;
+
+    [Header("攻撃距離設定")]
+    [SerializeField] private float closeRangeDistance = 3.0f;  // 近距離攻撃の範囲
+    [SerializeField] private float longRangeDistance = 8.0f;   // 遠距離攻撃の範囲
+    // EnemyAiクラスに追加するフィールド（既存のフィールドの近くに配置）
+
+    [Header("羽攻撃設定")]
+    [SerializeField] private GameObject[] featherPrefabs = new GameObject[2]; // 2種類の羽プレハブ
+    [SerializeField] private float featherSpawnInterval = 0.5f; // スポーン間隔
+    [SerializeField] private int feathersPerWave = 5; // 1回に出す羽の数
+    [SerializeField] private float featherSpeed = 8f; // 羽の飛行速度
+    [SerializeField] private float featherLifetime = 3f; // 羽の生存時間
+    [SerializeField] private float featherAttackDuration = 3f; // 攻撃継続時間
+    [SerializeField] private float featherSpreadAngle = 45f; // 羽の散らばり角度
+
+    private bool isFeatherAttacking = false;
+
     //アニメーション
     private Animator anim = null;
 
@@ -97,6 +101,7 @@ public class EnemyAi : MonoBehaviour
         Attack,
         HardAttack,
         WarpAttack,
+        HaneAttack,
     }
 
     public enum PriorityType
@@ -208,13 +213,13 @@ public class EnemyAi : MonoBehaviour
     private void HandleMoveState(float distance)
     {
         // 攻撃中は強制的に Idle にする
-        if (_enemyAtkState == EnemyAttackState.Attack ||
-            _enemyAtkState == EnemyAttackState.HardAttack ||
+        if (_enemyAtkState == EnemyAttackState.HardAttack ||
+            _enemyAtkState == EnemyAttackState.HaneAttack ||
             _enemyAtkState == EnemyAttackState.WarpAttack ||
             _enemyAtkState == EnemyAttackState.PreAtkState)
         {
             Idle();
-            return; // ここで処理を止める
+            return;
         }
 
         switch (_enemyMoveState)
@@ -229,15 +234,15 @@ public class EnemyAi : MonoBehaviour
                 break;
 
             case EnemyMoveState.Walk:
-                // 攻撃範囲外 → 近づく
-                if (distance > _attackRange)
+                // 遠距離攻撃範囲外 → 近づく
+                if (distance > longRangeDistance)
                 {
                     Walk();
                 }
                 // 近すぎる → 後退
                 else if (distance < _safeRange)
                 {
-                    Debug.Log("逃げるな卑怯者！！！");
+                    Debug.Log("距離を取る");
                     ChangeMoveState(EnemyMoveState.Back);
                     anim.SetBool("move", true);
                 }
@@ -247,7 +252,6 @@ public class EnemyAi : MonoBehaviour
                     Idle();
                 }
 
-                // 修正: EnemyBack()をWalk状態の時のみ呼び出し
                 EnemyBack();
 
                 // HPが減ったら回復
@@ -263,8 +267,8 @@ public class EnemyAi : MonoBehaviour
                 if (_enemyMoveStateEnter)
                 {
                     _enemyMoveStateEnter = false;
-                    _isMovingBack = true; // 修正: バック中フラグを追加
-                    StartCoroutine(BackDuration(1.0f)); // 1秒だけ後退
+                    _isMovingBack = true;
+                    StartCoroutine(BackDuration(1.0f));
                 }
                 break;
         }
@@ -450,15 +454,15 @@ public class EnemyAi : MonoBehaviour
     {
         float distance = Vector2.Distance(transform.position, _player_Pos.position);
 
-        // 攻撃クールタイム進行
-        CoolTime(PriorityType.NormalAtk, _enemyNormalAtk_Time);
+        // 攻撃クールタイム進行（通常攻撃は削除したので、適当な値を使用）
+        CoolTime(PriorityType.NormalAtk, 2.0f);
 
         switch (_enemyAtkState)
         {
             case EnemyAttackState.AttackIdle:
-                if (!_isAttackCooling && distance <= _attackRange + 0.5f && _enemyMoveState == EnemyMoveState.Walk)
+                // 攻撃範囲内でクールダウンが終了していれば攻撃判定
+                if (!_isAttackCooling && distance <= longRangeDistance && _enemyMoveState == EnemyMoveState.Walk)
                 {
-                    // 攻撃抽選
                     DecideAttack();
                 }
                 break;
@@ -473,11 +477,9 @@ public class EnemyAi : MonoBehaviour
                 break;
 
             case EnemyAttackState.Attack:
-                if (_enemyAtkStateEnter)
-                {
-                    _enemyAtkStateEnter = false;
-                    Attack();
-                }
+                // 通常攻撃は削除されたので、この状態は使用しない
+                Debug.LogWarning("通常攻撃状態は削除されました");
+                ChangeAttackState(EnemyAttackState.AttackIdle);
                 break;
 
             case EnemyAttackState.HardAttack:
@@ -495,21 +497,42 @@ public class EnemyAi : MonoBehaviour
                     WarpAttack();
                 }
                 break;
+
+            case EnemyAttackState.HaneAttack:
+                if (_enemyAtkStateEnter)
+                {
+                    _enemyAtkStateEnter = false;
+                    HaneAttack();
+                }
+                break;
         }
     }
 
     private void DecideAttack()
     {
-        float rand = Random.value; // 0.0〜1.0
+        float distance = Vector2.Distance(transform.position, _player_Pos.position);
 
-        //if (rand < hardAttackChance)
-        //{
-        ChangeAttackState(EnemyAttackState.HardAttack);
-        //}
-        //else
-        //{
-        //    ChangeAttackState(EnemyAttackState.Attack);
-        //}
+        Debug.Log($"プレイヤーとの距離: {distance}");
+
+        // 距離に応じて攻撃を選択
+        if (distance <= closeRangeDistance)
+        {
+            // 近距離 → 強攻撃
+            Debug.Log("近距離攻撃を選択：強攻撃");
+            ChangeAttackState(EnemyAttackState.HardAttack);
+        }
+        else if (distance <= longRangeDistance)
+        {
+            // 遠距離 → 羽攻撃
+            Debug.Log("遠距離攻撃を選択：羽攻撃");
+            ChangeAttackState(EnemyAttackState.HaneAttack);
+        }
+        else
+        {
+            // 攻撃範囲外 → 攻撃しない
+            Debug.Log("攻撃範囲外");
+            ChangeAttackState(EnemyAttackState.AttackIdle);
+        }
     }
 
     // 攻撃準備のための遅延コルーチン
@@ -576,6 +599,13 @@ public class EnemyAi : MonoBehaviour
         anim.SetBool("warpAtk", true);
     }
 
+    public void HaneAttack()
+    {
+        Debug.Log("羽攻撃アニメーション開始");
+        anim.SetTrigger("hane");
+    }
+
+
     private void OnTriggerEnter2D(Collider2D other)
     {
         Debug.Log("OnTriggerEnter2D: " + other.name);
@@ -618,6 +648,7 @@ public class EnemyAi : MonoBehaviour
         _HardAtk_col.enabled = true;
     }
 
+    //ワープ攻撃
     public void DisableHardAttackCollider()
     {
         Debug.Log("強攻撃判定OFF");
@@ -649,6 +680,36 @@ public class EnemyAi : MonoBehaviour
         StartCoroutine(DestroySpearAfterDelay(spear, spearLifetime));
     }
 
+    //羽攻撃
+    public void EnableHaneAttackCollider()
+    {
+        Debug.Log("羽攻撃開始 - アニメーションイベントから呼び出し");
+
+        // 既に攻撃中の場合は重複実行を防ぐ
+        if (isFeatherAttacking)
+        {
+            Debug.Log("既に羽攻撃実行中のため、重複実行をキャンセル");
+            return;
+        }
+
+        // プレイヤーが存在するかチェック
+        if (_player_Pos == null)
+        {
+            Debug.LogWarning("プレイヤーが見つからないため羽攻撃をキャンセル");
+            return;
+        }
+
+        // 羽プレハブが設定されているかチェック
+        if (featherPrefabs == null || featherPrefabs.Length == 0)
+        {
+            Debug.LogWarning("羽プレハブが設定されていません！");
+            return;
+        }
+
+        // 羽攻撃シーケンスを開始
+        StartCoroutine(FeatherAttackSequence());
+    }
+
     #endregion
 
     // 攻撃判定を無効化
@@ -669,24 +730,30 @@ public class EnemyAi : MonoBehaviour
         ChangeAttackState(EnemyAttackState.AttackIdle);
         anim.SetBool("hardAtk", false);
         anim.SetBool("warpAtk", false);
+        // 羽攻撃用のアニメーターパラメータもリセット（必要に応じて）
+        // anim.SetBool("haneAtk", false);
 
-        StartCoroutine(AttackCooldown(1.5f));
-
-        // 追跡再開
-        if (_player_Pos != null)
+        // 羽攻撃が継続中の場合は終了を待つ
+        if (isFeatherAttacking)
         {
-            float distance = Vector2.Distance(transform.position, _player_Pos.position);
-            if (distance < _detectionRange)
-            {
-                ChangeMoveState(EnemyMoveState.Walk);
-                anim.SetBool("move", true);
-            }
-            else
-            {
-                ChangeMoveState(EnemyMoveState.Idle);
-                anim.SetBool("move", false);
-            }
+            StartCoroutine(WaitForFeatherAttackEnd());
         }
+        else
+        {
+            StartCoroutine(AttackCooldown(2.0f)); // クールダウン時間を調整
+            ResumeMovement();
+        }
+    }
+
+    private IEnumerator WaitForFeatherAttackEnd()
+    {
+        while (isFeatherAttacking)
+        {
+            yield return new WaitForSeconds(0.1f);
+        }
+
+        StartCoroutine(AttackCooldown(2.0f));
+        ResumeMovement();
     }
 
     #endregion
@@ -700,6 +767,97 @@ public class EnemyAi : MonoBehaviour
             // 爆発エフェクトを出したい場合
             // Instantiate(explosionPrefab, spear.transform.position, Quaternion.identity);
             //Destroy(spear); // 修正: 槍の破棄処理を追加
+        }
+    }
+
+    private IEnumerator FeatherAttackSequence()
+    {
+        isFeatherAttacking = true;
+        float attackTimer = 0f;
+
+        Debug.Log("羽攻撃シーケンス開始");
+
+        while (attackTimer < featherAttackDuration)
+        {
+            // 羽を生成
+            SpawnFeathers();
+
+            // 次の生成まで待機
+            yield return new WaitForSeconds(featherSpawnInterval);
+            attackTimer += featherSpawnInterval;
+        }
+
+        isFeatherAttacking = false;
+        Debug.Log("羽攻撃シーケンス終了");
+    }
+
+
+    // 羽を生成するメソッド
+    private void SpawnFeathers()
+    {
+        if (_player_Pos == null) return;
+
+        Debug.Log($"羽を{feathersPerWave}個生成");
+
+        for (int i = 0; i < feathersPerWave; i++)
+        {
+            // ランダムに羽の種類を選択
+            int featherType = Random.Range(0, featherPrefabs.Length);
+
+            if (featherPrefabs[featherType] == null)
+            {
+                Debug.LogWarning($"羽プレハブ[{featherType}]が設定されていません！");
+                continue;
+            }
+
+            // 敵の位置から羽を生成（少し上から）
+            Vector2 spawnPos = transform.position + new Vector3(0, 1f, 0);
+
+            GameObject feather = Instantiate(featherPrefabs[featherType], spawnPos, Quaternion.identity);
+
+            // 羽の動作を設定
+            FeatherProjectile featherScript = feather.GetComponent<FeatherProjectile>();
+            if (featherScript == null)
+            {
+                featherScript = feather.AddComponent<FeatherProjectile>();
+            }
+
+            // プレイヤー方向にランダムな散らばりを加えた方向を計算
+            Vector2 baseDirection = (_player_Pos.position - transform.position).normalized;
+            float randomAngle = Random.Range(-featherSpreadAngle / 2f, featherSpreadAngle / 2f);
+            Vector2 finalDirection = RotateVector2(baseDirection, randomAngle);
+
+            featherScript.Initialize(finalDirection, featherSpeed, featherLifetime, _enemyHardAtk_Dmg);
+        }
+    }
+
+    private Vector2 RotateVector2(Vector2 vector, float angleDegrees)
+    {
+        float angleRadians = angleDegrees * Mathf.Deg2Rad;
+        float cos = Mathf.Cos(angleRadians);
+        float sin = Mathf.Sin(angleRadians);
+
+        return new Vector2(
+            vector.x * cos - vector.y * sin,
+            vector.x * sin + vector.y * cos
+        );
+    }
+
+    private void ResumeMovement()
+    {
+        if (_player_Pos != null)
+        {
+            float distance = Vector2.Distance(transform.position, _player_Pos.position);
+            if (distance < _detectionRange)
+            {
+                ChangeMoveState(EnemyMoveState.Walk);
+                anim.SetBool("move", true);
+            }
+            else
+            {
+                ChangeMoveState(EnemyMoveState.Idle);
+                anim.SetBool("move", false);
+            }
         }
     }
     #endregion

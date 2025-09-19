@@ -2106,6 +2106,14 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 0}
     m_Modifications:
+    - target: {fileID: 1489136527416337419, guid: 680486796aa4cd94e9c84e51149430f3, type: 3}
+      propertyPath: 'featherPrefabs.Array.data[0]'
+      value: 
+      objectReference: {fileID: 1261511518758755114, guid: d2743779f5ad08a4e95fb2968af33c51, type: 3}
+    - target: {fileID: 1489136527416337419, guid: 680486796aa4cd94e9c84e51149430f3, type: 3}
+      propertyPath: 'featherPrefabs.Array.data[1]'
+      value: 
+      objectReference: {fileID: 5856162507284833724, guid: 661e0673b7da6f54aba8f7da9f631c4d, type: 3}
     - target: {fileID: 4922807619789201016, guid: 680486796aa4cd94e9c84e51149430f3, type: 3}
       propertyPath: m_LocalPosition.x
       value: 6.5
