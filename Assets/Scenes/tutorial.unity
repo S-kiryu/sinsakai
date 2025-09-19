@@ -480,12 +480,14 @@ MonoBehaviour:
   interactionText: {fileID: 1902513430}
   interactionMessage: Press E to talk
   uiOffset: {x: 0, y: 2, z: 0}
-  lines:
-  - "\u3053\u306E\u304B\u307C\u3061\u3083\u306F\u507D\u7269\u3060"
-  - "\u98DF\u3079\u3089\u308C\u306A\u3044\u3088"
+  defaultLines: []
+  requiredItemId: pumpkin_01
+  itemLines: []
+  afterItemLines: []
   interactionKey: 101
   nextLineKey: 9
   closeDialogueKey: 27
+  consumeItemAfterDialogue: 1
 --- !u!1 &28352532
 GameObject:
   m_ObjectHideFlags: 0
@@ -1018,10 +1020,14 @@ MonoBehaviour:
   interactionText: {fileID: 1304804640}
   interactionMessage: Press C to Open
   uiOffset: {x: 0, y: 2, z: 0}
-  lines: []
+  defaultLines: []
+  requiredItemId: pumpkin_01
+  itemLines: []
+  afterItemLines: []
   interactionKey: 99
   nextLineKey: 9
   closeDialogueKey: 27
+  consumeItemAfterDialogue: 1
 --- !u!114 &172631435
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -4414,6 +4420,52 @@ Transform:
   m_Children: []
   m_Father: {fileID: 874169086}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!1 &1103484693
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1103484695}
+  - component: {fileID: 1103484694}
+  m_Layer: 0
+  m_Name: GameObject
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!114 &1103484694
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1103484693}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 43570bed3434c64448b430b58d97eb46, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  collectedItems: []
+  showDebugLogs: 1
+--- !u!4 &1103484695
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1103484693}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: -2.4661868, y: 4.887442, z: -0.105417125}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &1133149119
 GameObject:
   m_ObjectHideFlags: 0
@@ -6136,12 +6188,18 @@ MonoBehaviour:
   interactionText: {fileID: 1541650476}
   interactionMessage: Press E to talk
   uiOffset: {x: 0, y: 2, z: 0}
-  lines:
-  - "\u304B\u307C\u3061\u3083\u304C\u98DF\u3079\u305F\u3044\u306A"
-  - "\u305D\u3053\u306E\u6559\u4F1A\u306B\u3042\u308B\u304D\u304C\u3059\u308B\u306A\u30FC"
+  defaultLines:
+  - "\u304A\u306A\u304B\u304C\u3059\u3044\u305F\u306A\u30FC"
+  - "\u50D5\u304B\u307C\u3061\u3083\u304C\u98DF\u3079\u305F\u3044\u306A\u30FC"
+  requiredItemId: pumpkin_01
+  itemLines:
+  - "\u305D\u306E\u30AB\u30DC\u30C1\u30E3\u304F\u308C\u308B\u306E\uFF1F"
+  afterItemLines:
+  - "\u3042\u308A\u304C\u3068\u3046\uFF01\uFF01\uFF01"
   interactionKey: 101
   nextLineKey: 9
   closeDialogueKey: 27
+  consumeItemAfterDialogue: 1
 --- !u!224 &1527389477 stripped
 RectTransform:
   m_CorrespondingSourceObject: {fileID: 271675006105521942, guid: e39ca9082eec4fe40bbfb2d995142887, type: 3}
@@ -7342,8 +7400,8 @@ MonoBehaviour:
       m_Calls: []
   m_text: New Text
   m_isRightToLeft: 0
-  m_fontAsset: {fileID: 11400000, guid: 3a2dc75b422f97b4e93c1af3b943a328, type: 2}
-  m_sharedMaterial: {fileID: 3757219806119728358, guid: 3a2dc75b422f97b4e93c1af3b943a328, type: 2}
+  m_fontAsset: {fileID: 11400000, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
+  m_sharedMaterial: {fileID: 2180264, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
   m_fontSharedMaterials: []
   m_fontMaterial: {fileID: 0}
   m_fontMaterials: []
@@ -8615,3 +8673,4 @@ SceneRoots:
   - {fileID: 2072975541}
   - {fileID: 886074742}
   - {fileID: 1403022344}
+  - {fileID: 1103484695}

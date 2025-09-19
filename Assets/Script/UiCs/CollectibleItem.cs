@@ -21,15 +21,6 @@ public class CollectibleItem : MonoBehaviour
         }
     }
 
-    void OnTriggerEnter(Collider other)
-    {
-        // プレイヤーがトリガーに入った時（3D用）
-        if (other.CompareTag("Player") && !isCollected)
-        {
-            CollectItem();
-        }
-    }
-
     void OnTriggerEnter2D(Collider2D other)
     {
         // プレイヤーがトリガーに入った時（2D用）
