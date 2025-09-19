@@ -428,7 +428,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_Material: {fileID: 0}
-  m_Color: {r: 1, g: 1, b: 1, a: 1}
+  m_Color: {r: 1, g: 1, b: 1, a: 0}
   m_RaycastTarget: 1
   m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
   m_Maskable: 1
@@ -654,6 +654,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   nextSceneName: tutorial
+  spawnPosition: {x: 13, y: -0.3}
+  useCustomSpawnPosition: 1
 --- !u!114 &432367184
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -830,7 +832,7 @@ Transform:
   m_GameObject: {fileID: 519420028}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: -9.98, y: -0.00999999, z: -11}
+  m_LocalPosition: {x: -9.98, y: -0.00999999, z: -25}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -1442,8 +1444,8 @@ MonoBehaviour:
   m_fontMaterials: []
   m_fontColor32:
     serializedVersion: 2
-    rgba: 4281479730
-  m_fontColor: {r: 0.19607843, g: 0.19607843, b: 0.19607843, a: 1}
+    rgba: 4294967295
+  m_fontColor: {r: 1, g: 1, b: 1, a: 1}
   m_enableVertexGradient: 0
   m_colorMode: 3
   m_fontColorGradient:
@@ -1541,7 +1543,7 @@ Transform:
   m_GameObject: {fileID: 1314930259}
   serializedVersion: 2
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: 0, y: -2.57, z: 0}
+  m_LocalPosition: {x: 0, y: -2.57, z: 1}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -2051,7 +2053,7 @@ Transform:
   m_GameObject: {fileID: 1699313612}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: -9.98, y: -0.00999999, z: -11}
+  m_LocalPosition: {x: -9.98, y: -0.00999999, z: -25}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -2301,14 +2303,14 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_Material: {fileID: 0}
-  m_Color: {r: 1, g: 1, b: 1, a: 0.5882353}
+  m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_RaycastTarget: 1
   m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
   m_Maskable: 1
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_Sprite: {fileID: 0}
+  m_Sprite: {fileID: 8759577689947643095, guid: 5da825a6659c406419c0cda52c08a9a7, type: 3}
   m_Type: 0
   m_PreserveAspect: 0
   m_FillCenter: 1
@@ -2500,7 +2502,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 5147916852221247426, guid: 0218f11a27c079144983efac1c6faefb, type: 3}
       propertyPath: m_LocalPosition.z
-      value: -1
+      value: -15
       objectReference: {fileID: 0}
     - target: {fileID: 5147916852221247426, guid: 0218f11a27c079144983efac1c6faefb, type: 3}
       propertyPath: m_LocalRotation.w
@@ -2529,6 +2531,10 @@ PrefabInstance:
     - target: {fileID: 5147916852221247426, guid: 0218f11a27c079144983efac1c6faefb, type: 3}
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 7677239629310587064, guid: 0218f11a27c079144983efac1c6faefb, type: 3}
+      propertyPath: _playerHp
+      value: 50
       objectReference: {fileID: 0}
     - target: {fileID: 7796552263040474615, guid: 0218f11a27c079144983efac1c6faefb, type: 3}
       propertyPath: m_Name

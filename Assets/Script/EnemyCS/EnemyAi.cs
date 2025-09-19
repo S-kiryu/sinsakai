@@ -574,7 +574,6 @@ public class EnemyAi : MonoBehaviour
     {
         Debug.Log("ワープ攻撃開始");
         anim.SetBool("warpAtk", true);
-        anim.SetTrigger("warpAtk_T");
     }
 
     private void OnTriggerEnter2D(Collider2D other)
@@ -589,7 +588,6 @@ public class EnemyAi : MonoBehaviour
                 {
                     player.TakePlayerDamage(_enemyFinalDmg);
                     Debug.Log("うっひょーーーーーーーーーーーーーー");
-                    // ChangeAttackState(EnemyAttackState.PreAtkState); ←この行を削除！
                 }
             }
         }
@@ -631,7 +629,6 @@ public class EnemyAi : MonoBehaviour
         Debug.Log("ワープ攻撃だよ");
         if (_player_Pos == null) return;
 
-        // 修正: spearPrefabのnullチェック追加
         if (spearPrefab == null)
         {
             Debug.LogWarning("spearPrefabが設定されていません！");
@@ -643,7 +640,6 @@ public class EnemyAi : MonoBehaviour
         // プレイヤーの「後ろ」側を計算
         Vector2 spawnPos = _player_Pos.position - new Vector3(playerDir * spearOffset, 0, 0);
 
-        // 槍を生成
         GameObject spear = Instantiate(spearPrefab, spawnPos, Quaternion.identity);
 
         // 槍をプレイヤーの向きに合わせて反転
