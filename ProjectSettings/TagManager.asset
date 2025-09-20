@@ -8,6 +8,7 @@ TagManager:
   - Enemy
   - PlayerHit
   - pen
+  - kakasi
   layers:
   - Default
   - TransparentFX

@@ -8,7 +8,7 @@ public class Pencs : MonoBehaviour
     public void TakePenDamage(float damage)
     {
         _penHp -= damage;
-        DamageFlash();
+        StartCoroutine(DamageFlash());
         Debug.Log("Pen‚ÌŽc‚èHP: " + _penHp);
         if (_penHp <= 0)
         {

@@ -827,7 +827,7 @@ public class EnemyAi : MonoBehaviour
             float randomAngle = Random.Range(-featherSpreadAngle / 2f, featherSpreadAngle / 2f);
             Vector2 finalDirection = RotateVector2(baseDirection, randomAngle);
 
-            featherScript.Initialize(finalDirection, featherSpeed, featherLifetime, 5f);
+            featherScript.Initialize(finalDirection, featherSpeed, featherLifetime, 10f);
         }
     }
 

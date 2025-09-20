@@ -1,5 +1,7 @@
-using UnityEngine;
+using System.Collections;
 using TMPro;
+using UnityEngine;
+using UnityEngine.SceneManagement;
 
 public class DialogueManager : MonoBehaviour
 {
@@ -14,6 +16,13 @@ public class DialogueManager : MonoBehaviour
     [SerializeField] private TextMeshProUGUI interactionText; // "Press E to talk" などのテキスト
     [SerializeField] private string interactionMessage = "Press E to talk"; // 表示メッセージ
     [SerializeField] private Vector3 uiOffset = new Vector3(0, 2f, 0); // NPCからのUIオフセット
+
+    [Header("Game Clear UI")]
+    [SerializeField] private GameObject gameClearPanel; // ゲームクリアパネル
+    [SerializeField] private TextMeshProUGUI gameClearText; // ゲームクリアメッセージ
+    [SerializeField] private string gameClearMessage = "Quest Complete!\nThank you for playing!"; // クリアメッセージ
+    [SerializeField] private float gameClearDisplayTime = 3f; // クリア画面表示時間（秒）
+    [SerializeField] private string titleSceneName = "Title"; // タイトルシーンの名前
 
     [Header("Dialogue Content - Default")]
     [TextArea]
@@ -33,10 +42,12 @@ public class DialogueManager : MonoBehaviour
     [SerializeField] private KeyCode nextLineKey = KeyCode.Space; // 次のセリフへ進むキー
     [SerializeField] private KeyCode closeDialogueKey = KeyCode.Escape; // ダイアログを閉じるキー
     [SerializeField] private bool consumeItemAfterDialogue = true; // 会話後にアイテムを消費するか
+    [SerializeField] private bool triggerGameClearOnItemUse = true; // アイテム使用後にゲームクリアを発動するか
 
     private int currentLine = 0;
     private bool isPlayerInRange = false;  // プレイヤーがコライダー内にいるかどうか
     private bool isDialogueActive = false; // ダイアログが表示されているかどうか
+    private bool isGameClearing = false; // ゲームクリア処理中かどうか
     private Camera mainCamera; // メインカメラの参照
     private string[] currentLines; // 現在使用している会話配列
     private bool hasUsedItem = false; // アイテムを使用したかどうかの記録
@@ -56,11 +67,18 @@ public class DialogueManager : MonoBehaviour
             gameObject.SetActive(false);
         }
 
+        // ゲームクリアUIを非表示にする
+        if (gameClearPanel != null)
+        {
+            gameClearPanel.SetActive(false);
+        }
+
         // インタラクションUIを非表示にする
         HideInteractionUI();
 
         currentLine = 0;
         isDialogueActive = false;
+        isGameClearing = false;
 
         // デバッグ情報
         Debug.Log("=== DialogueManager 初期化 ===");
@@ -68,6 +86,7 @@ public class DialogueManager : MonoBehaviour
         Debug.Log($"Default Lines Count: {(defaultLines != null ? defaultLines.Length : 0)}");
         Debug.Log($"Item Lines Count: {(itemLines != null ? itemLines.Length : 0)}");
         Debug.Log($"After Item Lines Count: {(afterItemLines != null ? afterItemLines.Length : 0)}");
+        Debug.Log($"Game Clear on Item Use: {triggerGameClearOnItemUse}");
 
         // GameManagerの確認
         if (GameManager.Instance == null)
@@ -84,6 +103,9 @@ public class DialogueManager : MonoBehaviour
 
     private void Update()
     {
+        // ゲームクリア処理中は他の入力を受け付けない
+        if (isGameClearing) return;
+
         // ワールドUIの位置を更新（カメラに向ける）
         UpdateWorldUIPosition();
 
@@ -235,7 +257,7 @@ public class DialogueManager : MonoBehaviour
     // インタラクションUIを表示
     private void ShowInteractionUI()
     {
-        if (!isDialogueActive) // ダイアログ中でない場合のみ表示
+        if (!isDialogueActive && !isGameClearing) // ダイアログ中でなく、ゲームクリア中でもない場合のみ表示
         {
             if (interactionUI != null)
             {
@@ -380,6 +402,12 @@ public class DialogueManager : MonoBehaviour
                 {
                     hasUsedItem = true;
                     Debug.Log($"アイテム '{requiredItemId}' を使用しました！");
+
+                    // ゲームクリア処理を発動
+                    if (triggerGameClearOnItemUse)
+                    {
+                        StartCoroutine(TriggerGameClear());
+                    }
                 }
                 else
                 {
@@ -389,8 +417,100 @@ public class DialogueManager : MonoBehaviour
         }
     }
 
+    // ゲームクリア処理
+    private IEnumerator TriggerGameClear()
+    {
+        isGameClearing = true;
+
+        Debug.Log("ゲームクリア処理開始！");
+
+        // 既存のUIを全て非表示にする
+        HideAllUI();
+
+        // 少し待機してからクリア画面を表示
+        yield return new WaitForSeconds(0.5f);
+
+        // ゲームクリアUIを表示
+        ShowGameClearUI();
+
+        // 指定時間待機
+        yield return new WaitForSeconds(gameClearDisplayTime);
+
+        // タイトルシーンに戻る
+        LoadTitleScene();
+    }
+
+    // 全てのUIを非表示にする（ゲームクリア前の準備）
+    private void HideAllUI()
+    {
+        Debug.Log("全てのUIを非表示にします");
+
+        // ダイアログパネルを非表示
+        if (dialoguePanel != null)
+        {
+            dialoguePanel.SetActive(false);
+        }
+
+        // インタラクションUIを非表示
+        HideInteractionUI();
+
+        // ダイアログ状態をリセット
+        isDialogueActive = false;
+        currentLine = 0;
+    }
+
+    // ゲームクリアUIを表示
+    private void ShowGameClearUI()
+    {
+        if (gameClearPanel != null)
+        {
+            gameClearPanel.SetActive(true);
+
+            if (gameClearText != null)
+            {
+                gameClearText.text = gameClearMessage;
+            }
+
+            Debug.Log("ゲームクリア画面を表示しました");
+        }
+        else
+        {
+            Debug.LogWarning("Game Clear Panel が設定されていません！");
+        }
+    }
+
+    // タイトルシーンに戻る
+    private void LoadTitleScene()
+    {
+        Debug.Log($"タイトルシーン '{titleSceneName}' をロード中...");
+
+        // シーンが存在するかチェック
+        try
+        {
+            SceneManager.LoadScene(titleSceneName);
+        }
+        catch (System.Exception e)
+        {
+            Debug.LogError($"タイトルシーンのロードに失敗しました: {e.Message}");
+            Debug.LogError("Build Settingsにシーンが追加されているか確認してください");
+
+            // 代替として最初のシーンをロード
+            try
+            {
+                SceneManager.LoadScene(0);
+            }
+            catch (System.Exception e2)
+            {
+                Debug.LogError($"代替シーンのロードも失敗しました: {e2.Message}");
+            }
+        }
+    }
+
     private void EndDialogue()
     {
+        // ゲームクリア処理中は通常のダイアログ終了処理をスキップ
+        if (isGameClearing) return;
+
         isDialogueActive = false;
         currentLine = 0;
 
@@ -407,6 +527,16 @@ public class DialogueManager : MonoBehaviour
         if (isPlayerInRange)
         {
             ShowInteractionUI();
+        }
+    }
+
+    // 手動でゲームクリアを発動（デバッグ用）
+    [System.Obsolete("Debug method - remove in production")]
+    public void ManualTriggerGameClear()
+    {
+        if (!isGameClearing)
+        {
+            StartCoroutine(TriggerGameClear());
         }
     }
 

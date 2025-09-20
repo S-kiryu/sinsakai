@@ -1,5 +1,6 @@
 ﻿using System.Collections;
 using UnityEngine;
+using UnityEngine.InputSystem;
 
 public class Player : MonoBehaviour
 {
@@ -230,12 +231,12 @@ public class Player : MonoBehaviour
         // ジャンプ中は攻撃できないようにする
         if (!_isGrounded || _isRolling) return;
 
-        if (Input.GetKeyDown(_punchAttackKey))
-        {
-            Debug.Log("通常攻撃！");
-            _attackDamage = _punchDmg;
-            StartCoroutine(DoPunchAttack());
-        }
+        //if (Input.GetKeyDown(_punchAttackKey))
+        //{
+        //    Debug.Log("通常攻撃！");
+        //    _attackDamage = _punchDmg;
+        //    StartCoroutine(DoPunchAttack());
+        //}
 
         if (Input.GetKeyDown(_projectileKey) && !_projectileAttackCollider.enabled)
         {
@@ -296,6 +297,22 @@ public class Player : MonoBehaviour
                 {
                     pencs.TakePenDamage(_attackDamage);
                 }
+            }
+
+            if (other.CompareTag("kakasi"))
+            {
+                Debug.Log("kakasiに攻撃を実行");
+                Kakasi kakasi = other.GetComponent<Kakasi>();
+                if (kakasi != null)
+                {
+                    kakasi.TakekakasiDamage(_attackDamage);
+                }
+                else 
+                {
+                    Debug.Log("またピネだ");
+                }
+                
+                
             }
         }
     }
