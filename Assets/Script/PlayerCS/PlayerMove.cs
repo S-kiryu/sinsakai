@@ -118,6 +118,7 @@ public class Player : MonoBehaviour
     {
         _playerHp -= damage;
         Debug.Log("Playerの残りHP: " + _playerHp);
+        StartCoroutine(DamageFlash());
         if (_playerHp <= 0)
         {
             PlayerDie();
@@ -317,6 +318,14 @@ public class Player : MonoBehaviour
         }
     }
     #endregion
+
+    private IEnumerator DamageFlash()
+    {
+        var sr = GetComponent<SpriteRenderer>();
+        sr.color = Color.red;
+        yield return new WaitForSeconds(0.3f); // 赤くなる時間
+        sr.color = Color.white;
+    }
 
     // ＝＝＝地面の当たり判定＝＝＝
     #region

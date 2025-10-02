@@ -1002,7 +1002,7 @@ BoxCollider2D:
   m_CallbackLayers:
     serializedVersion: 2
     m_Bits: 4294967295
-  m_IsTrigger: 1
+  m_IsTrigger: 0
   m_UsedByEffector: 0
   m_CompositeOperation: 0
   m_CompositeOrder: 0
@@ -2123,7 +2123,7 @@ PrefabInstance:
     m_Modifications:
     - target: {fileID: 1489136527416337419, guid: 680486796aa4cd94e9c84e51149430f3, type: 3}
       propertyPath: feathersPerWave
-      value: 20
+      value: 10
       objectReference: {fileID: 0}
     - target: {fileID: 1489136527416337419, guid: 680486796aa4cd94e9c84e51149430f3, type: 3}
       propertyPath: featherSpreadAngle
@@ -2131,7 +2131,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 1489136527416337419, guid: 680486796aa4cd94e9c84e51149430f3, type: 3}
       propertyPath: featherSpawnInterval
-      value: 1
+      value: 2
       objectReference: {fileID: 0}
     - target: {fileID: 1489136527416337419, guid: 680486796aa4cd94e9c84e51149430f3, type: 3}
       propertyPath: 'featherPrefabs.Array.data[0]'
